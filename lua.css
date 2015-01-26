@@ -9,12 +9,12 @@ body {
 	margin: 16px ;
 	color: #000000 ;
 	background-color: #FFFFFF ;
-	font-family: "WenQuanYi Micro Hei", "Microsoft YaHei", Helvetica, Arial, sans-serif ;
+	font-family: helvetica, arial, sans-serif ;
 	text-align: justify ;
 }
 
 h1, h2, h3, h4 {
-	font-family: "WenQuanYi Micro Hei", "Microsoft YaHei", Helvetica, Verdana, Geneva, sans-serif ;
+	font-family: helvetica, arial, sans-serif ;
 	font-weight: normal ;
 	font-style: normal ;
 }
