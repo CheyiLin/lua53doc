@@ -1,3 +1,4 @@
-Lua 5.3 手册中文版
+Lua 5.3 手冊中文版
 
-http://cloudwu.github.io/lua53doc
+簡體中文 http://cloudwu.github.io/lua53doc
+繁體中文 http://cheyilin.github.io/lua53doc
