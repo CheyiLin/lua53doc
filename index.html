@@ -41,7 +41,7 @@ Lua 5.3 歡迎你
 &middot;
 <A HREF="#changes">變更</A>
 &middot;
-<A HREF="#license">許可證</A>
+<A HREF="#license">授權協議</A>
 &middot;
 <A HREF="contents.html">參考手冊</A>
 &middot;
@@ -115,7 +115,7 @@ Lua 以
 <LI>
 編譯過程很短，最終在 <TT>src</TT> 目錄下生成三個文件：
 lua (解釋器),
-luac (編譯器)和 liblua.a (靜態庫) 。
+luac (編譯器)和 liblua.a (靜態函式庫) 。
 <P>
 <LI>
   構建完成後，可以運行 "<KBD>make test</KBD>" 來檢查是否成功。
@@ -198,11 +198,11 @@ luac (編譯器)和 liblua.a (靜態庫) 。
 
 <P>
   如果你不使用常規的 Unix 工具，那麼構建 Lua 的流程就取決於你使用的編譯器。
-  你需要創建若幹工程來構建庫，解釋器以及編譯器等。請把下列源文件加入相關工程：
+  你需要創建若干工程來構建函式庫，解釋器以及編譯器等。請把下列源文件加入相關工程：
 
 <DL CLASS="display">
 <DT>
-庫:
+函式庫:
 <DD>
 lapi.c lcode.c lctype.c ldebug.c ldo.c ldump.c lfunc.c lgc.c llex.c
 lmem.c lobject.c lopcodes.c lparser.c lstate.c lstring.c ltable.c
@@ -220,7 +220,7 @@ lmathlib.c loslib.c lstrlib.c ltablib.c lutf8lib.c loadlib.c linit.c
 </DL>
 
 <P>
-  把 Lua 以一個庫形式用於你的程序，你需要知道如何用你的編譯器創建庫和使用庫。
+  把 Lua 以一個函式庫形式用於你的程序，你需要知道如何用你的編譯器創建和使用函式庫。
   比如，以動態加載的 C 庫形式使用 Lua，你需要瞭解如何創建動態庫並讓 Lua API 函數
   在動態庫中可見 &mdash; <EM>不要</EM> 將 Lua 庫鏈入每個動態庫。
   在 Unix 下，我們建議把 Lua 庫靜態鏈入宿主程序，然後將符號導出用於動態鏈接；
@@ -258,7 +258,7 @@ lmathlib.c loslib.c lstrlib.c ltablib.c lutf8lib.c loadlib.c linit.c
 <LI> 某些元方法有了更加靈活的規則
 </UL>
 
-<H3>庫</H3>
+<H3>函式庫</H3>
 <UL>
 <LI> <CODE>ipairs</CODE> 以及表處理庫都會考慮元方法
 <LI> <CODE>string.dump</CODE> 多了裁減選項
