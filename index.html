@@ -74,12 +74,12 @@ Lua 的
 
 <P>
 Lua 以
-<A HREF="http://www.lua.org/ftp/">源代碼</A>
-的形式發佈，使用之前，你需要構建它。
-構建 Lua 非常簡單，因為 Lua 是用純粹的 ANSI C 實現的，在所有具備 ANSI C 編譯器的平台都可以直接編譯。
+<A HREF="http://www.lua.org/ftp/">原始碼</A>
+的形式發佈，使用之前，你需要建置它。
+建置 Lua 非常簡單，因為 Lua 是用純粹的 ANSI C 實現的，在所有具備 ANSI C 編譯器的平台都可以直接編譯。
 同時，Lua 也可以直接以 C++ 形式編譯。
-下面介紹了類 Unix 平台上的構建流程，另有
-<A HREF="#other">其它系統構建介紹</A>
+下面介紹了類 Unix 平台上的建置流程，另有
+<A HREF="#other">其它系統建置介紹</A>
 與
 <A HREF="#customization">配置選項</A> 以作參考。
 
@@ -90,7 +90,7 @@ Lua 以
 或者從
 <A HREF="http://luadist.org/">LuaDist</A> 這裡獲取 Lua 的多平台發佈版（自帶電池）。
 
-<H3>構建 Lua</H3>
+<H3>建置 Lua</H3>
 
 <P>
 在大多數類 Unix 平台上，輸入 "<KBD>make</KBD>" 加上合適的平台名即可。步驟如下：
@@ -98,28 +98,28 @@ Lua 以
 <OL>
 <LI>
 打開一個控制台窗口，切換到 <TT>lua-5.3.0</TT> 目錄。
-目錄下的 <TT>Makefile</TT> 文件內包含了構建與安裝流程。
+目錄下的 <TT>Makefile</TT> 文件內包含了建置與安裝流程。
 <P>
 <LI>
-  運行 "<KBD>make</KBD>" 並查看你的平台是否列在其中。
+  執行 "<KBD>make</KBD>" 並查看你的平台是否列在其中。
   當前支持的平台有：
 <P>
 <P CLASS="display">
    aix bsd c89 freebsd generic linux macosx mingw posix solaris
 </P>
 <P>
-  如果你的平台在其中，運行 "<KBD>make xxx</KBD>" 即可，xxx 代表你的平台名。
+  如果你的平台在其中，執行 "<KBD>make xxx</KBD>" 即可，xxx 代表你的平台名。
 <P>
   如果你的平台不在其中，先嘗試最相近的平台，再按 posix generic c89 順序依次嘗試。
 <P>
 <LI>
 編譯過程很短，最終在 <TT>src</TT> 目錄下生成三個文件：
-lua (解釋器),
-luac (編譯器)和 liblua.a (靜態函式庫) 。
+lua (直譯器),
+luac (編譯器) 和 liblua.a (靜態函式庫) 。
 <P>
 <LI>
-  構建完成後，可以運行 "<KBD>make test</KBD>" 來檢查是否成功。
-  它會運行解釋器並打印版本號。
+  建置完成後，可以執行 "<KBD>make test</KBD>" 來檢查是否成功。
+  它會執行直譯器並印出版本號。
 </OL>
 <P>
 如果你是 Linux 系統並出現了編譯錯誤，請確認你是否安裝了
@@ -129,22 +129,22 @@ luac (編譯器)和 liblua.a (靜態函式庫) 。
 
 <H3>安裝 Lua</H3>
 <P>
-  一旦你構建完畢，可能希望把 Lua 安裝到系統默認位置，
+  一旦你建置完畢，可能希望把 Lua 安裝到系統預設位置，
   那麼執行 "<KBD>make install</KBD>" 即可。
-  系統默認位置以及如何安裝都定義在 <TT>Makefile</TT> 中。
+  系統預設位置以及如何安裝都定義在 <TT>Makefile</TT> 中。
   這個過程可能需要有相關的權限。
 
 <P>
-  運行 "<KBD>make xxx install</KBD>" 可以構建和安裝一步到位，xxx 指你的平台名。
+  執行 "<KBD>make xxx install</KBD>" 可以建置和安裝一步到位，xxx 指你的平台名。
 
 <P>
-  如果你想把 Lua 安裝在本地，運行 "<KBD>make local</KBD>"。
+  如果你想把 Lua 安裝在本地，執行 "<KBD>make local</KBD>"。
   它會創建一個 <TT>install</TT> 目錄，內有
   <TT>bin</TT>, <TT>include</TT>, <TT>lib</TT>, <TT>man</TT>, <TT>share</TT>,
   子目錄，並將下列文件安裝在其中。
 
   如果你想安裝到本地其它目錄，
-  運行 "<KBD>make install INSTALL_TOP=xxx</KBD>"，xxx 指你選擇的目錄。
+  執行 "<KBD>make install INSTALL_TOP=xxx</KBD>"，xxx 指你選擇的目錄。
   由於安裝過程中會切換到 <TT>src</TT> 以及 <TT>doc</TT> 目錄進行，
   所以當 <TT>INSTALL_TOP</TT> 不是絕對路徑時務必小心。
 
@@ -169,36 +169,36 @@ luac (編譯器)和 liblua.a (靜態函式庫) 。
 
 <P>
   這些是開發時需要的目錄。
-  如果你僅僅想運行一些 Lua 程序，
+  如果你僅僅想執行一些 Lua 程序，
   那麼只需要 <TT>bin</TT> 和 <TT>man</TT> 下的文件。
   <TT>include</TT> 和 <TT>lib</TT> 下的文件用於將 Lua 嵌入
   C 或 C++ 程序。
 
-<H3><A NAME="customization">定制</A></H3>
+<H3><A NAME="customization">客製化</A></H3>
 <P>
-  有三類定制，可以通過編輯文件完成：
+  有三類客製化，可以通過編輯文件完成：
 <UL>
     <LI> 怎樣安裝 Lua 以及安裝到哪裡 &mdash; 編輯 <TT>Makefile</TT>。
-    <LI> 怎樣構建 Lua &mdash; 編輯 <TT>src/Makefile</TT>。
+    <LI> 怎樣建置 Lua &mdash; 編輯 <TT>src/Makefile</TT>。
     <LI> Lua 特性 &mdash; 編輯 <TT>src/luaconf.h</TT>。
 </UL>
 
 <P>
   其實你不必編輯 Makefile 文件，make 的時候在命令行指定相關變量即可。
-  當然，編輯保存 Makefile 可以給定制留個記錄。
+  當然，編輯保存 Makefile 可以給客製化留個記錄。
 
 <P>
-  另一方面，如果你需要定制一些 Lua 特性，那就需要在構建安裝 Lua 前
+  另一方面，如果你需要客製化一些 Lua 特性，那就需要在建置安裝 Lua 前
   編輯 <TT>src/luaconf.h</TT> 。
   編輯過的文件必須確保一致性，也就是只安裝在一個地方，
   讓所有你編譯出來的用到 Lua 的程序都使用這唯一的這一份。
-  專家可以通過編輯 Lua 源代碼來定制更多的東西。
+  專家可以通過編輯 Lua 原始碼來客製化更多的東西。
   
-<H3><A NAME="other">在其它系統上構建 Lua</A></H3>
+<H3><A NAME="other">在其它系統上建置 Lua</A></H3>
 
 <P>
-  如果你不使用常規的 Unix 工具，那麼構建 Lua 的流程就取決於你使用的編譯器。
-  你需要創建若干工程來構建函式庫，解釋器以及編譯器等。請把下列源文件加入相關工程：
+  如果你不使用常規的 Unix 工具，那麼建置 Lua 的流程就取決於你使用的編譯器。
+  你需要創建若干工程來建置函式庫，直譯器以及編譯器等。請把下列源文件加入相關工程：
 
 <DL CLASS="display">
 <DT>
@@ -210,7 +210,7 @@ ltm.c lundump.c lvm.c lzio.c
 lauxlib.c lbaselib.c lbitlib.c lcorolib.c ldblib.c liolib.c
 lmathlib.c loslib.c lstrlib.c ltablib.c lutf8lib.c loadlib.c linit.c
 <DT>
-解釋器:
+直譯器:
 <DD>
   library, lua.c
 <DT>
@@ -221,16 +221,16 @@ lmathlib.c loslib.c lstrlib.c ltablib.c lutf8lib.c loadlib.c linit.c
 
 <P>
   把 Lua 以一個函式庫形式用於你的程序，你需要知道如何用你的編譯器創建和使用函式庫。
-  比如，以動態加載的 C 庫形式使用 Lua，你需要瞭解如何創建動態庫並讓 Lua API 函數
+  比如，以動態加載的 C 庫形式使用 Lua，你需要瞭解如何創建動態庫並讓 Lua API 函式
   在動態庫中可見 &mdash; <EM>不要</EM> 將 Lua 庫鏈入每個動態庫。
   在 Unix 下，我們建議把 Lua 庫靜態鏈入宿主程序，然後將符號導出用於動態鏈接；
-  <TT>src/Makefile</TT> 就是這樣處理 Lua 解釋器的。
+  <TT>src/Makefile</TT> 就是這樣處理 Lua 直譯器的。
   在 Windows 下，我們建議把 Lua 庫編譯成一個 DLL 。
   無論怎樣，編譯器 luac 都應該靜態鏈接。
 
 <P>
-  正如上面所述，你可以在構建 Lua 前編輯 <TT>src/luaconf.h</TT>
-  以定制一些特性。
+  正如上面所述，你可以在建置 Lua 前編輯 <TT>src/luaconf.h</TT>
+  以客製化一些特性。
 
 <H2><A NAME="changes">自 Lua 5.2 以來的變更</A></H2>
 
@@ -238,15 +238,15 @@ lmathlib.c loslib.c lstrlib.c ltablib.c lutf8lib.c loadlib.c linit.c
 這裡列出了 Lua 5.3 引入的主要變更。
 <A HREF="contents.html">參考手冊</A>
 中列出了
-<A HREF="manual.html#8">不兼容的地方</A>。
+<A HREF="manual.html#8">不相容的地方</A>。
 
 <H3>主要變化</H3>
 <UL>
-<LI> 整數 (默認 64 位)
-<LI> 32 位整數的官方支持
-<LI> 位操作符
+<LI> 整數 (預設 64 位)
+<LI> 32 位整數的官方支援
+<LI> 位元運算子
 <LI> 基本的 utf-8 支持
-<LI> 值的打包及解包涵數
+<LI> 值的打包及解包函式
 
 </UL>
 
@@ -263,28 +263,28 @@ lmathlib.c loslib.c lstrlib.c ltablib.c lutf8lib.c loadlib.c linit.c
 <LI> <CODE>ipairs</CODE> 以及表處理庫都會考慮元方法
 <LI> <CODE>string.dump</CODE> 多了裁減選項
 <LI> 表處理庫考慮了元方法
-<LI> 新函數 <CODE>table.move</CODE>
-<LI> 新函數 <CODE>string.pack</CODE>
-<LI> 新函數 <CODE>string.unpack</CODE>
-<LI> 新函數 <CODE>string.packsize</CODE>
+<LI> 新函式 <CODE>table.move</CODE>
+<LI> 新函式 <CODE>string.pack</CODE>
+<LI> 新函式 <CODE>string.unpack</CODE>
+<LI> 新函式 <CODE>string.packsize</CODE>
 </UL>
 
 <H3>C API</H3>
 <UL>
 <LI> 簡化了延續點 API 
-<LI> <CODE>lua_gettable</CODE> 以及類似函數會返回結果的值類型
+<LI> <CODE>lua_gettable</CODE> 以及類似函式會返回結果的值類型
 <LI> <CODE>lua_dump</CODE> 增加了裁減選項
-<LI> 新函數： <CODE>lua_geti</CODE>
-<LI> 新函數： <CODE>lua_seti</CODE>
-<LI> 新函數： <CODE>lua_isyieldable</CODE>
-<LI> 新函數： <CODE>lua_numbertointeger</CODE>
-<LI> 新函數： <CODE>lua_rotate</CODE>
-<LI> 新函數： <CODE>lua_stringtonumber</CODE>
+<LI> 新函式： <CODE>lua_geti</CODE>
+<LI> 新函式： <CODE>lua_seti</CODE>
+<LI> 新函式： <CODE>lua_isyieldable</CODE>
+<LI> 新函式： <CODE>lua_numbertointeger</CODE>
+<LI> 新函式： <CODE>lua_rotate</CODE>
+<LI> 新函式： <CODE>lua_stringtonumber</CODE>
 </UL>
 
-<H3>Lua 獨立解釋器</H3>
+<H3>Lua 獨立直譯器</H3>
 <UL>
-<LI> 可以做計算器使用；不再需要前置 '='
+<LI> 可以做計算機使用；不再需要前置 '='
 <LI> <CODE>arg</CODE> 表對所有代碼都可用
 </UL>
 
