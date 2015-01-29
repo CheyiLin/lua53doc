@@ -60,80 +60,32 @@ Lua 是自由軟體，且如使用授權協議中所示，使用本軟體時無�
 <h1>2 &ndash; <a name="2">基本概念</a></h1>
 
 <p>
-本章描述了語言的基本概念。
-
-
+本章旨在說明 Lua 的基本概念。
 
 <h2>2.1 &ndash; <a name="2.1">值與型別</a></h2>
 
 <p>
-Lua 是一門<em>動態型別語言</em>。
-這意味著變量沒有型別；只有值才有型別。
-語言中不設型別定義。
-所有的值攜帶自己的型別。
-
+Lua 是一個<em>動態型別語言</em>。這代表了變數本身沒有型別；只有值才有型別。本語言中沒有型別定義，所有的值具有自己的型別。
 
 <p>
-Lua 中所有的值都是 <em>一等公民</em>。
-這意味著所有的值均可保存在變量中、
-當作參數傳遞給其它函式、以及作為返回值。
-
+Lua 中所有的值都是 <em>first-class</em> 值。這代表了所有的值均可被保存在變數中，當作參數傳遞給其他函式，以及作為傳回值。
 
 <p>
-Lua 中有八種基本型別：
-<em>nil</em>、<em>boolean</em>、<em>number</em>、<em>string</em>、<em>function</em>、<em>userdata</em>、
-<em>thread</em> 和 <em>table</em>。
-<em>Nil</em> 是值 <b>nil</b> 的型別，
-其主要特徵就是和其它值區別開；通常用來表示一個有意義的值不存在時的狀態。
-<em>Boolean</em> 是 <b>false</b> 與 <b>true</b> 兩個值的型別。
-<b>nil</b> 和 <b>false</b> 都會導致條件判斷為假；
-而其它任何值都表示為真。
-<em>Number</em> 代表了整數和實數（浮點數）。
-<em>String</em> 表示一個不可變的字節序列。
-
-Lua 對 8 位是友好的：
-字串可以容納任意 8 位值，
-其中包含零 ('<code>\0</code>') 。
-Lua 的字串與編碼無關；
-它不關心字串中具體內容。
-
+Lua 中有八種基本型別：<em>nil</em>、<em>boolean</em>、<em>number</em>、<em>string</em>、<em>function</em>、<em>userdata</em>、<em>thread</em> 和 <em>table</em>。<em>Nil</em> 是值 <b>nil</b> 的型別，其主要特徵是可以跟其他各種值做出區隔，通常用來表示「有意義的值不存在」的狀態。<em>Boolean</em> 是 <b>false</b> 與 <b>true</b> 兩個值的型別。<b>nil</b> 和 <b>false</b> 都會導致條件判斷為假，而其他任何值皆為真。<em>Number</em> 代表整數和實數（浮點數）。<em>String</em> 代表一個不可變的字元序列（即字串）。Lua 是 <b>8-bit clean</b> 的：意即字串可容納任何 8 位元值，包括字元零 (<code>'\0'</code>)。Lua 同時也是編碼中立的，它不對字串內容做任何假設。
 
 <p>
-<em>number</em> 型別有兩種內部表現方式，
- <em>整數</em> 和 <em>浮點數</em>。
-對於何時使用哪種內部形式，Lua 有明確的規則，
-但它也按需（參見 <a href="#3.4.3">&sect;3.4.3</a>）作自動轉換。
-因此，程序員多數情況下可以選擇忽略整數與浮點數之間的差異或者假設完全控制每個數字的內部表現方式。
-標準 Lua 使用 64 位整數和雙精度（64 位）浮點數，
-但你也可以把 Lua 編譯成使用 32 位整數和單精度（32 位）浮點數。
-以 32 位表示數字對小型機器以及嵌入式系統特別合適。
-（參見 <code>luaconf.h</code> 文件中的宏 <code>LUA_32BITS</code> 。）
-
+<em>number</em> 型別內含兩種表示法，分別為 <em>整數</em> 和 <em>浮點數</em>。對於何時使用哪種表示法，Lua 有明確的規則，但也會視需求（詳見 <a href="#3.4.3">&sect;3.4.3</a>）進行自動轉換。因此，程式設計者可以選擇大體上忽視整數與浮點數間的差異，但也可進一步完全控制每個 <em>number</em> 的表示內容。標準 Lua 使用 64 位元整數及雙倍精度（64 位元）浮點數，但是你也可以將 Lua 編譯成使用 32 位元整數和單精度（32 位元）浮點數。小型機器或嵌入式系統特別合適用 32 位元來表示整數與浮點數。（詳見 <code>luaconf.h</code> 中的 <code>LUA_32BITS</code> 巨集定義。）
 
 <p>
-Lua 可以調用（以及操作）用 Lua 或 C （參見 <a href="#3.4.10">&sect;3.4.10</a>）編寫的函式。
-這兩種函式有統一型別 <em>function</em>。
-
+Lua 可以呼叫（及操作）用 Lua 與 C 語言（詳見 <a href="#3.4.10">&sect;3.4.10</a>）編寫的函式，兩者皆以 <em>function</em> 型別來表示。
 
 <p>
-<em>userdata</em> 型別允許將 C 中的數據保存在 Lua 變量中。
-用戶數據型別的值是一個記憶體塊，
-有兩種用戶數據：
-<em>完全用戶數據</em> ，指一塊由 Lua 管理的記憶體對應的對象；
-<em>輕量用戶數據</em> ，則指一個簡單的 C 指針。
-用戶數據在 Lua 中除了賦值與相等性判斷之外沒有其他預定義的操作。
-通過使用 <em>元表</em> ，程序員可以給完全用戶數據定義一系列的操作
-（參見 <a href="#2.4">&sect;2.4</a>）。
-你只能通過 C API 而無法在 Lua 代碼中創建或者修改用戶數據的值，
-這保證了數據僅被宿主程序所控制。
-
+<em>userdata</em> 型別是用來讓任意的 C 語言資料得以存於 Lua 變數中。<em>userdata</em> 的值代表的是一個記憶體區塊。<em>userdata</em> 有兩種形式：<em>full userdata</em>，是一個由 Lua 所管理的記憶體區塊對應的物件；<em>light userdata</em>，則是一個單純的 C 指標。<em>userdata</em> 在 Lua 中除了指定與相等性判斷之外，沒有其他的預設操作。透過使用 <em>metatable</em>，程式設計者可以定義 <em>full userdata</em> 的各項操作（詳見 <a href="#2.4">&sect;2.4</a>）。<em>userdata</em> 值不能在 Lua 中被建立或修改，必須通過使用 Lua/C API 才行，以確保 <em>host</em> 程式對於其資料有完整控制權。
 
 <p>
-<em>thread</em> 型別表示了一個獨立的執行序列，被用於實現協程
-（參見 <a href="#2.6">&sect;2.6</a>）。
-Lua 的線程與操作系統的線程毫無關係。
-Lua 為所有的系統，包括那些不支持原生線程的系統，提供了協程支持。
+<em>thread</em> 型別代表獨立的運作程序，用於實作 <em>coroutine</em> 功能（詳見 <a href="#2.6">&sect;2.6</a>）。Lua 的 <em>thread</em> 與作業系統的執行緒毫無關係。Lua 的 <em>coroutine</em> 可以在所有系統上使用，包括那些沒有原生執行緒的系統。
 
+The type table implements associative arrays, that is, arrays that can be indexed not only with numbers, but with any Lua value except nil and NaN. (Not a Number is a special numeric value used to represent undefined or unrepresentable results, such as 0/0.) Tables can be heterogeneous; that is, they can contain values of all types (except nil). Any key with value nil is not considered part of the table. Conversely, any key that is not part of a table has an associated value nil.
 
 <p>
 <em>table</em> 是一個關聯數組，
@@ -145,6 +97,7 @@ Lua 為所有的系統，包括那些不支持原生線程的系統，提供了�
 任何鍵的值若為 <b>nil</b> 就不會被記入表結構內部。
 換言之，對於表內不存在的鍵，都對應著值 <b>nil</b> 。
 
+Tables are the sole data-structuring mechanism in Lua; they can be used to represent ordinary arrays, sequences, symbol tables, sets, records, graphs, trees, etc. To represent records, Lua uses the field name as an index. The language supports this representation by providing a.name as syntactic sugar for a["name"]. There are several convenient ways to create tables in Lua (see §3.4.9).
 
 <p>
 表是 Lua 中唯一的數據結構，
@@ -154,11 +107,13 @@ Lua 為所有的系統，包括那些不支持原生線程的系統，提供了�
 <code>a["name"]</code> 這種寫法以方便記錄這種結構的使用。
 在 Lua 中有多種便利的方式創建表（參見 <a href="#3.4.9">&sect;3.4.9</a>）。
 
+We use the term sequence to denote a table where the set of all positive numeric keys is equal to {1..n} for some non-negative integer n, which is called the length of the sequence (see §3.4.7).
 
 <p>
 我們使用 <em>序列</em> 這個術語來表示一個用 {1..<em>n</em>} 的正整數集做索引的表。
 這裡的非負整數 <em>n</em> 被稱為該序列的長度（參見 <a href="#3.4.7">&sect;3.4.7</a>）。
 
+Like indices, the values of table fields can be of any type. In particular, because functions are first-class values, table fields can contain functions. Thus tables can also carry methods (see §3.4.11).
 
 <p>
 和索引一樣，表中每個域的值也可以是任何型別。
@@ -166,6 +121,7 @@ Lua 為所有的系統，包括那些不支持原生線程的系統，提供了�
 這樣，表就可以攜帶 <em>方法</em> 了。
 （參見 <a href="#3.4.11">&sect;3.4.11</a>）。
 
+The indexing of tables follows the definition of raw equality in the language. The expressions a[i] and a[j] denote the same table element if and only if i and j are raw equal (that is, equal without metamethods). In particular, floats with integral values are equal to their respective integers (e.g., 1.0 == 1). To avoid ambiguities, any float with integral value used as a key is converted to its respective integer. For instance, if you write a[2.0] = true, the actual key inserted into the table will be the integer 2. (On the other hand, 2 and "2" are different Lua values and therefore denote different table entries.)
 
 <p>
 索引一張表的原則遵循語言中的直接比較規則。
@@ -182,6 +138,7 @@ Lua 為所有的系統，包括那些不支持原生線程的系統，提供了�
 （另一方面，2 與 "<code>2</code>" 是兩個不同的 Lua 值，
 故而它們可以是同一張表中的不同項。）
 
+Tables, functions, threads, and (full) userdata values are objects: variables do not actually contain these values, only references to them. Assignment, parameter passing, and function returns always manipulate references to such values; these operations do not imply any kind of copy.
 
 <p>
 表、函式、線程、以及完全用戶數據在 Lua 中被稱為 <em>對像</em>：
@@ -189,6 +146,7 @@ Lua 為所有的系統，包括那些不支持原生線程的系統，提供了�
 賦值、參數傳遞、函式返回，都是針對引用而不是針對值的操作，
 這些操作均不會做任何形式的隱式拷貝。
 
+The library function type returns a string describing the type of a given value (see §6.1).
 
 <p>
 庫函式 <a href="#pdf-type"><code>type</code></a> 用於以字串形式返回給定值的型別。
