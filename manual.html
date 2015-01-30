@@ -68,7 +68,7 @@ Lua 是自由軟體，且如使用授權協議中所示，使用本軟體時無�
 Lua 是一個<em>動態型別語言</em>。這代表了變數本身沒有型別；只有值才有型別。本語言中沒有型別定義，所有的值具有自己的型別。
 
 <p>
-Lua 中所有的值都是 <em>first-class</em> 值。這代表了所有的值均可被保存在變數中，當作參數傳遞給其他函式，以及作為傳回值。
+Lua 中所有的值都是 <em>first-class</em> 值。這代表了所有的值均可被保存在變數中，當作參數傳遞給其他函式，以及作為回傳值。
 
 <p>
 Lua 中有八種基本型別：<em>nil</em>、<em>boolean</em>、<em>number</em>、<em>string</em>、<em>function</em>、<em>userdata</em>、<em>thread</em> 和 <em>table</em>。<em>Nil</em> 是值 <b>nil</b> 的型別，其主要特徵是可以跟其他各種值做出區隔，通常用來表示「有意義的值不存在」的狀態。<em>Boolean</em> 是 <b>false</b> 與 <b>true</b> 兩個值的型別。<b>nil</b> 和 <b>false</b> 都會導致條件判斷為假，而其他任何值皆為真。<em>Number</em> 代表整數和實數（浮點數）。<em>String</em> 代表一個不可變的字元序列（即字串）。Lua 是 <b>8-bit clean</b> 的：意即字串可容納任何 8 位元值，包括字元零 (<code>'\0'</code>)。Lua 同時也是編碼中立的，它不對字串內容做任何假設。
@@ -85,74 +85,26 @@ Lua 可以呼叫（及操作）用 Lua 與 C 語言（詳見 <a href="#3.4.10">&
 <p>
 <em>thread</em> 型別代表獨立的運作程序，用於實作 <em>coroutine</em> 功能（詳見 <a href="#2.6">&sect;2.6</a>）。Lua 的 <em>thread</em> 與作業系統的執行緒毫無關係。Lua 的 <em>coroutine</em> 可以在所有系統上使用，包括那些沒有原生執行緒的系統。
 
-The type table implements associative arrays, that is, arrays that can be indexed not only with numbers, but with any Lua value except nil and NaN. (Not a Number is a special numeric value used to represent undefined or unrepresentable results, such as 0/0.) Tables can be heterogeneous; that is, they can contain values of all types (except nil). Any key with value nil is not considered part of the table. Conversely, any key that is not part of a table has an associated value nil.
+<p>
+<em>table</em> 實作了關聯式陣列功能，這種陣列除了 <b>nil</b> 和 NaN 之外的所有 Lua 值，都可以當做索引。（<em>NaN 即 Not a Number</em>，是一個特殊的數值，用於未定義或無法表示之運算結果，譬如 <code>0/0</code>。）table 可以是異構的，即任何型別的值都可保存於 table 之中（<b>nil</b> 除外）。任何索引所對應到的值若為 <b>nil</b>，就不會被當成是該 table 的一部分。換言之，對於 table 內不存在的索引，都對應著 <b>nil</b>。
 
 <p>
-<em>table</em> 是一個關聯數組，
-也就是說，這個數組不僅僅以數字做索引，除了 <b>nil</b> 和 NaN 之外的所有 Lua 值
-都可以做索引。
-（<em>Not a Number</em> 是一個特殊的數字，它用於表示未定義或表示不了的運算結果，比如 <code>0/0</code>。）
-表可以是 <em>異構</em> 的；
-也就是說，表內可以包含任何型別的值（ <b>nil</b> 除外）。
-任何鍵的值若為 <b>nil</b> 就不會被記入表結構內部。
-換言之，對於表內不存在的鍵，都對應著值 <b>nil</b> 。
-
-Tables are the sole data-structuring mechanism in Lua; they can be used to represent ordinary arrays, sequences, symbol tables, sets, records, graphs, trees, etc. To represent records, Lua uses the field name as an index. The language supports this representation by providing a.name as syntactic sugar for a["name"]. There are several convenient ways to create tables in Lua (see §3.4.9).
+<em>table</em> 是 Lua 中唯一的資料結構化機制，它可用以表示簡單的陣列、序列、符號表、集合、紀錄、圖、樹等等。對於紀錄結構，Lua 使用欄位名稱作為索引。語言機制中支援用 <code>a.name</code> 這樣的簡化寫法來代表 <code>a["name"]</code>。在 Lua 中有多種便利的方式可以建立 table（詳見 <a href="#3.4.9">&sect;3.4.9</a>）。
 
 <p>
-表是 Lua 中唯一的數據結構，
-它可被用於表示普通數組、序列、符號表、集合、記錄、圖、樹等等。
-對於記錄，Lua 使用域名作為索引。
-語言提供了 <code>a.name</code> 這樣的語法糖來替代
-<code>a["name"]</code> 這種寫法以方便記錄這種結構的使用。
-在 Lua 中有多種便利的方式創建表（參見 <a href="#3.4.9">&sect;3.4.9</a>）。
-
-We use the term sequence to denote a table where the set of all positive numeric keys is equal to {1..n} for some non-negative integer n, which is called the length of the sequence (see §3.4.7).
+我們使用 <em>序列</em> 一詞來表示一個用 {1..<em>n</em>} 的連續正整數集合做索引的 table，<em>n</em> 為一非負整數，即為該序列的長度（詳見 <a href="#3.4.7">&sect;3.4.7</a>）。
 
 <p>
-我們使用 <em>序列</em> 這個術語來表示一個用 {1..<em>n</em>} 的正整數集做索引的表。
-這裡的非負整數 <em>n</em> 被稱為該序列的長度（參見 <a href="#3.4.7">&sect;3.4.7</a>）。
-
-Like indices, the values of table fields can be of any type. In particular, because functions are first-class values, table fields can contain functions. Thus tables can also carry methods (see §3.4.11).
+和索引一樣，table 中每個欄位的值可以是任何型別。值得一提的是，因為函式也是 first-class 值，所以 table 的欄位也可以包括函式。如此一來，table 就可以持有（物件導向中的所謂的）<em>方法</em> 了。（詳見 <a href="#3.4.11">&sect;3.4.11</a>）。
 
 <p>
-和索引一樣，表中每個域的值也可以是任何型別。
-需要特別指出的是：既然函式是一等公民，那麼表的域也可以是函式。
-這樣，表就可以攜帶 <em>方法</em> 了。
-（參見 <a href="#3.4.11">&sect;3.4.11</a>）。
-
-The indexing of tables follows the definition of raw equality in the language. The expressions a[i] and a[j] denote the same table element if and only if i and j are raw equal (that is, equal without metamethods). In particular, floats with integral values are equal to their respective integers (e.g., 1.0 == 1). To avoid ambiguities, any float with integral value used as a key is converted to its respective integer. For instance, if you write a[2.0] = true, the actual key inserted into the table will be the integer 2. (On the other hand, 2 and "2" are different Lua values and therefore denote different table entries.)
+索引一張表的原則遵循語言中的直接比較規則。若且唯若 <code>i</code> 與 <code>j</code> 直接比較相等時（即不透過 <em>metamethod</em> 來比較），表達式 <code>a[i]</code> 與 <code>a[j]</code> 則皆指向該 table 中同一個元素。在此特別說明，一個可以完全表示為整數的浮點數和對應的整數相等（例：<code>1.0 == 1</code>）。為了避免歧義，當使用一個可以完全表示為整數的浮點數做為索引時，都會被轉換為對應的整數。譬如，當你寫 <code>a[2.0] = true</code> 時，實際被插入 table 中的索引是整數 <code>2</code>。（另一方面，2 與字串 <code>"2"</code> 是完全不同的 Lua 值，故他們不會指向同樣的 table 元素。）
 
 <p>
-索引一張表的原則遵循語言中的直接比較規則。
-當且僅當 <code>i</code> 與 <code>j</code>直接比較相等時
-（即不通過元方法的比較），
-表達式 <code>a[i]</code> 與 <code>a[j]</code>
-表示了表中相同的元素。
-特別指出：一個可以完全表示為整數的浮點數和對應的整數相等
-（例如：<code>1.0 == 1</code>）。
-為了消除歧義，當一個可以完全表示為整數的浮點數做為鍵值時，
-都會被轉換為對應的整數儲存。
-例如，當你寫 <code>a[2.0] = true</code> 時，
-實際被插入表中的鍵是整數 <code>2</code> 。
-（另一方面，2 與 "<code>2</code>" 是兩個不同的 Lua 值，
-故而它們可以是同一張表中的不同項。）
-
-Tables, functions, threads, and (full) userdata values are objects: variables do not actually contain these values, only references to them. Assignment, parameter passing, and function returns always manipulate references to such values; these operations do not imply any kind of copy.
+<em>Table</em>、<em>函式</em>、<em>thread</em> 以及 <em>full userdata</em> 的值，在 Lua 中被稱為 <em>物件</em>：變數並不真的持有這些值，而只是「參考」他們。指定、參數傳遞、函式回傳，都是針對參考來進行操作，而並不隱含任何形式的複製行為。
 
 <p>
-表、函式、線程、以及完全用戶數據在 Lua 中被稱為 <em>對像</em>：
-變量並不真的 <em>持有</em> 它們的值，而僅保存了對這些對象的 <em>引用</em>。
-賦值、參數傳遞、函式返回，都是針對引用而不是針對值的操作，
-這些操作均不會做任何形式的隱式拷貝。
-
-The library function type returns a string describing the type of a given value (see §6.1).
-
-<p>
-庫函式 <a href="#pdf-type"><code>type</code></a> 用於以字串形式返回給定值的型別。
-（參見 <a href="#6.1">&sect;6.1</a>）。
-
-
+Lua 標準函式庫的 <a href="#pdf-type"><code>type</code></a> 函式，功能為以字串形式回傳傳入值的型別（詳見 <a href="#6.1">&sect;6.1</a>）。
 
 
 <h2>2.2 &ndash; <a name="2.2">環境與全局環境</a></h2>
