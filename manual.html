@@ -77,42 +77,42 @@ Lua 中有八種基本型別：<em>nil</em>、<em>boolean</em>、<em>number</em>
 <em>number</em> 型別內含兩種表示法，分別為 <em>整數</em> 和 <em>浮點數</em>。對於何時使用哪種表示法，Lua 有明確的規則，但也會視需求（詳見 <a href="#3.4.3">&sect;3.4.3</a>）進行自動轉換。因此，程式設計者可以選擇大體上忽視整數與浮點數間的差異，但也可進一步完全控制每個 <em>number</em> 的表示內容。標準 Lua 使用 64 位元整數及雙倍精度（64 位元）浮點數，但是你也可以將 Lua 編譯成使用 32 位元整數和單精度（32 位元）浮點數。小型機器或嵌入式系統特別合適用 32 位元來表示整數與浮點數。（詳見 <code>luaconf.h</code> 中的 <code>LUA_32BITS</code> 巨集定義。）
 
 <p>
-Lua 可以呼叫（及操作）用 Lua 與 C 語言（詳見 <a href="#3.4.10">&sect;3.4.10</a>）編寫的函式，兩者皆以 <em>function</em> 型別來表示。
+Lua 可以呼叫（及操作）用 Lua 與 C 語言（詳見 <a href="#3.4.10">&sect;3.4.10</a>）編寫的函式，兩者的型別都是 <em>function</em>。
 
 <p>
 <em>userdata</em> 型別是用來讓任意的 C 語言資料得以存於 Lua 變數中。<em>userdata</em> 的值代表的是一個記憶體區塊。<em>userdata</em> 有兩種形式：<em>full userdata</em>，是一個由 Lua 所管理的記憶體區塊對應的物件；<em>light userdata</em>，則是一個單純的 C 指標。<em>userdata</em> 在 Lua 中除了指定與相等性判斷之外，沒有其他的預設操作。透過使用 <em>metatable</em>，程式設計者可以定義 <em>full userdata</em> 的各項操作（詳見 <a href="#2.4">&sect;2.4</a>）。<em>userdata</em> 值不能在 Lua 中被建立或修改，必須通過使用 Lua/C API 才行，以確保 <em>host</em> 程式對於其資料有完整控制權。
 
 <p>
-<em>thread</em> 型別代表獨立的運作程序，用於實作 <em>coroutine</em> 功能（詳見 <a href="#2.6">&sect;2.6</a>）。Lua 的 <em>thread</em> 與作業系統的執行緒毫無關係。Lua 的 <em>coroutine</em> 可以在所有系統上使用，包括那些沒有原生執行緒的系統。
+<em>thread</em> 型別代表獨立的執行流程，用於實作 <em>coroutine</em> 功能（詳見 <a href="#2.6">&sect;2.6</a>）。Lua 的 <em>thread</em> 與作業系統的執行緒毫無關係。Lua 的 <em>coroutine</em> 功能可以在所有系統上使用，包括那些沒有原生執行緒的系統。
 
 <p>
-<em>table</em> 實作了關聯式陣列功能，這種陣列除了 <b>nil</b> 和 NaN 之外的所有 Lua 值，都可以當做索引。（<em>NaN 即 Not a Number</em>，是一個特殊的數值，用於未定義或無法表示之運算結果，譬如 <code>0/0</code>。）table 可以是異構的，即任何型別的值都可保存於 table 之中（<b>nil</b> 除外）。任何索引所對應到的值若為 <b>nil</b>，就不會被當成是該 table 的一部分。換言之，對於 table 內不存在的索引，都對應著 <b>nil</b>。
+<em>table</em> 實作了關聯式陣列功能，除了 <b>nil</b> 和 NaN 之外的所有 Lua 值，都可以當做關聯式陣列的索引。（<em>NaN 即 Not a Number</em>，是一個特殊的數值，用於未定義或無法表示之運算結果，譬如 <code>0/0</code>。）table 可以是異構的，即任何型別的值都可保存於 table 之中（<b>nil</b> 除外）。任何索引所對應到的值若為 <b>nil</b>，就不會被當成是該 table 的一部分。換言之，對於 table 內不存在的索引，都會對應到 <b>nil</b>。
 
 <p>
 <em>table</em> 是 Lua 中唯一的資料結構化機制，它可用以表示簡單的陣列、序列、符號表、集合、紀錄、圖、樹等等。對於紀錄結構，Lua 使用欄位名稱作為索引。語言機制中支援用 <code>a.name</code> 這樣的簡化寫法來代表 <code>a["name"]</code>。在 Lua 中有多種便利的方式可以建立 table（詳見 <a href="#3.4.9">&sect;3.4.9</a>）。
 
 <p>
-我們使用 <em>序列</em> 一詞來表示一個用 {1..<em>n</em>} 的連續正整數集合做索引的 table，<em>n</em> 為一非負整數，即為該序列的長度（詳見 <a href="#3.4.7">&sect;3.4.7</a>）。
+我們使用 <em>序列</em> 一詞來表示一個用 {1..<em>n</em>} 的連續正整數集合做為索引的 table，<em>n</em> 為一非負整數，即為該序列的長度（詳見 <a href="#3.4.7">&sect;3.4.7</a>）。
 
 <p>
 和索引一樣，table 中每個欄位的值可以是任何型別。值得一提的是，因為函式也是 first-class 值，所以 table 的欄位也可以包括函式。如此一來，table 就可以持有（物件導向中的所謂的）<em>方法</em> 了。（詳見 <a href="#3.4.11">&sect;3.4.11</a>）。
 
 <p>
-索引一張表的原則遵循語言中的直接比較規則。若且唯若 <code>i</code> 與 <code>j</code> 直接比較相等時（即不透過 <em>metamethod</em> 來比較），表達式 <code>a[i]</code> 與 <code>a[j]</code> 則皆指向該 table 中同一個元素。在此特別說明，一個可以完全表示為整數的浮點數和對應的整數相等（例：<code>1.0 == 1</code>）。為了避免歧義，當使用一個可以完全表示為整數的浮點數做為索引時，都會被轉換為對應的整數。譬如，當你寫 <code>a[2.0] = true</code> 時，實際被插入 table 中的索引是整數 <code>2</code>。（另一方面，2 與字串 <code>"2"</code> 是完全不同的 Lua 值，故他們不會指向同樣的 table 元素。）
+索引 table 的原則遵循 Lua 中的直接比較規則：若且唯若 <code>i</code> 與 <code>j</code> 直接比較相等時（即不透過 <em>metamethod</em> 來比較），表達式 <code>a[i]</code> 與 <code>a[j]</code> 則皆指向該 table 中同一個元素。在此特別說明，一個可以完全表示為整數的浮點數，即與對應的整數相等（例：<code>1.0 == 1</code>）。為了避免歧義，當使用一個可以完全表示為整數的浮點數做為索引時，都會被轉換成對應的整數。譬如，當你寫 <code>a[2.0] = true</code> 時，實際被插入 table 中的索引是整數 <code>2</code>。（另一方面，2 與字串 <code>"2"</code> 是完全不同的 Lua 值，故他們不會指向同樣的 table 元素。）
 
 <p>
 <em>Table</em>、<em>函式</em>、<em>thread</em> 以及 <em>full userdata</em> 的值，在 Lua 中被稱為 <em>物件</em>：變數並不真的持有這些值，而只是「參考」他們。指定、參數傳遞、函式回傳，都是針對參考來進行操作，而並不隱含任何形式的複製行為。
 
 <p>
-Lua 標準函式庫的 <a href="#pdf-type"><code>type</code></a> 函式，功能為以字串形式回傳傳入值的型別（詳見 <a href="#6.1">&sect;6.1</a>）。
+Lua 標準函式庫中的 <a href="#pdf-type"><code>type</code></a> 函式，可以回傳傳入值型別所對應的字串（詳見 <a href="#6.1">&sect;6.1</a>）。
 
 <h2>2.2 &ndash; <a name="2.2">環境與全域環境</a></h2>
 
 <p>
-當我們在任何地方使用名為 var 的自由變數（即在任何層級都未被宣告的變數名）時，語法上它會轉換成 <code>_ENV.var</code> 來處理，這點在後面 <a href="#3.2">&sect;3.2</a> 以及 <a href="#3.3.3">&sect;3.3.3</a> 會進一步討論。此外，每個 Lua 程式片段（chunk）會被編譯在一個外層的區域變數 <code>_ENV</code> 範圍之下，故 <code>_ENV</code> 本身永遠不會是一個程式片段中的自由變數。
+當我們在任何地方使用名為 var 的自由變數（即在任何層級都未被宣告的變數名）時，語法上它會轉換成 <code>_ENV.var</code> 來處理，這點在後面 <a href="#3.2">&sect;3.2</a> 以及 <a href="#3.3.3">&sect;3.3.3</a> 會進一步討論。此外，每個 Lua 程式片段（chunk）會被編譯在一個外層區域變數 <code>_ENV</code> 的範圍之下，故 <code>_ENV</code> 本身永遠不會是一個程式片段中的自由變數。
 
 <p>
-僅管 <code>_ENV</code> 有身為外層變數及在轉換自由變數上的規則這些特性，他與其他變數並沒有差異。特別是，你可以自行定義一個新的 <code>_ENV</code> 變數或函式參數。自由變數的轉換會根據 Lua 的能見度規則（詳見 <a href="#3.5">&sect;3.5</a>），參考到當下可見的 <code>_ENV</code> 來進行處理。
+儘管 <code>_ENV</code> 有身為外層變數及在轉換自由變數上的規則這些特性，他與其他變數並沒有差異。特別是，你可以自行定義一個新的 <code>_ENV</code> 變數或函式參數。自由變數的轉換會根據 Lua 的能見度規則（詳見 <a href="#3.5">&sect;3.5</a>），參考到當下可見的 <code>_ENV</code> 來進行處理。
 
 <p>
 <code>_ENV</code> 變數所指向的那個 table 值，即被稱為程式運作的 <em>環境</em>。
