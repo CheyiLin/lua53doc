@@ -142,10 +142,10 @@ Lua 本身會持有一個被稱為 <em>全域環境</em> 的特別環境。這�
 
 <h2>2.4 &ndash; <a name="2.4">Metatable 以及 Metamethod</a></h2>
 
-<p>所有在 Lua 中的值都可以有一個 <em>metatable</em>。Metatable 本身就是一個普通的 Lua table，用以定義各種 Lua 值在特定操作下的行為。透過設定某個值的 metatable 的對應欄位，你可以改變該值在這些操作下的行為。例如，當非數字值進行相加操作時，Lua 會檢查該值的 metatable 中的 "<code>__add</code>" 欄位裡面是否存在函式。如果能找到，Lua 就會呼叫這個函式來進行相加操作。
+<p>所有在 Lua 中的值都可以有一個 <em>metatable</em>。Metatable 本身就是一個普通的 Lua table，用以定義各種 Lua 值在特定運算下的行為。透過設定某個值的 metatable 的對應欄位，你可以改變該值在這些運算下的行為。例如，當非數字值進行相加時，Lua 會檢查該值的 metatable 中的 "<code>__add</code>" 欄位裡面是否存在函式。如果能找到，Lua 就會呼叫這個函式來進行相加運算。
 
 <p>
-metatable 中的各索引乃引申自不同的事件名稱；而他們對應的值就被稱為 <em>metamethod</em>。在上個例子中，發生的事件是 "add"，而進行相加操作的函式就是 metamethod。 
+metatable 中的各索引乃引申自不同的事件名稱；而他們對應的值就被稱為 <em>metamethod</em>。在上個例子中，發生的事件是 "add"，而進行相加運算的函式就是 metamethod。 
 
 <p>
 你可以用 <a href="#pdf-getmetatable"><code>getmetatable</code></a> 函式來取得任何值的 metatable。
@@ -160,216 +160,163 @@ Table 與 full userdata 擁有獨立的 metatable（當然，不同的 table 與
 Metatable 決定了一個物件在數學運算、位元運算、排序比較、連接操作、長度計算、函式呼叫、索引取值時的行為。Metatable 也可以定義當 userdata 及 table 要被垃圾回收時（詳見<a href="#2.5">&sect;2.5</a>），所該呼叫的函式。
 
 <p>
-下面將列出一個 metatable 可以控制的事件的完整列表，每個操作都用對應的事件名來區分。對應事件的索引名稱，則用加有 '<code>__</code>' 前綴的字串來表示；例如，"add" 事件的索引為 "<code>__add</code>"。須注意的是，對 metamethod 的存取永遠是「直接存取」，因此在對一個 metamethod 進行存取時不會觸發其他的 metamethod。下面這行程式說明了 Lua 從一個 <code>obj</code> 物件中，取用一個 metamethod 的方式：
+下面將列出一個 metatable 可以控制的事件的完整列表，每個運算都用對應的事件名來區分。對應事件的索引名稱，則用加有 '<code>__</code>' 前綴的字串來表示；例如，"add" 事件的索引為 "<code>__add</code>"。須注意的是，對 metamethod 的存取永遠是「直接存取」，因此在對一個 metamethod 進行存取時不會觸發其他的 metamethod。下面這行程式說明了 Lua 從一個 <code>obj</code> 物件中，取用一個 metamethod 的方式：
 
 <pre>
      rawget(getmetatable(obj) or {}, "__" .. event_name)
 </pre>
 
-For the unary operators (negation, length, and bitwise not), the metamethod is computed and called with a dummy second operand, equal to the first one. This extra operand is only to simplify Lua's internals (by making these operators behave like a binary operation) and may be removed in future versions. (For most uses this extra operand is irrelevant.)
-
 <p>
-對於一元操作符（取負、求長度、位反），
-元方法調用的時候，第二個參數是個啞元，其值等於第一個參數。
-這樣處理僅僅是為了簡化 Lua 的內部實現
-（這樣處理可以讓所有的操作都和二元操作一致），
-這個行為有可能在將來的版本中移除。
-（使用這個額外參數的行為都是不確定的。）
-
+對於一元運算子（取負值、長度計算、取補數），metamethod 被呼叫時的第二個運算元為虛設參數，其值等於第一個參數。這樣處理僅是為了簡化 Lua 的內部實作（使得所有操作都變成像是二元運算），且有可能在未來的版本中移除（幾乎所有狀況下，這個額外運算元都是無意義的）。
 
 <ul>
 
-<li><b>"add": </b>
-<code>+</code> 操作。
+"add": the + operation. If any operand for an addition is not a number (nor a string coercible to a number), Lua will try to call a metamethod. First, Lua will check the first operand (even if it is valid). If that operand does not define a metamethod for the "__add" event, then Lua will check the second operand. If Lua can find a metamethod, it calls the metamethod with the two operands as arguments, and the result of the call (adjusted to one value) is the result of the operation. Otherwise, it raises an error.
 
-如果任何不是數字的值（包括不能轉換為數字的字串）做加法，
-Lua 就會嘗試調用元方法。
-首先、Lua 檢查第一個操作數（即使它是合法的），
-如果這個操作數沒有為 "<code>__add</code>" 事件定義元方法，
-Lua 就會接著檢查第二個操作數。
-一旦 Lua 找到了元方法，
-它將把兩個操作數作為參數傳入元方法，
-元方法的結果（調整為單個值）作為這個操作的結果。
-如果找不到元方法，將拋出一個錯誤。
+<li><b>"add": </b>
+<code>+</code> 運算。
+
+加法中的任一運算元不是 number 型別的值（包括不能轉換為 number 的 string）的時候，Lua 會嘗試呼叫 metamethod。首先，Lua 會檢查第一個運算元（即使它是合法的），若該運算元沒有為 "<code>__add</code>" 事件定義 metamethod，Lua 就會接著檢查第二個運算元。一旦 Lua 找到 metamethod，就會呼叫該 metamethod 並將兩個運算元當做參數來傳入，而回傳值（僅取第一個回傳值）就是該運算的結果。若找不到 metamethod，將產生一個錯誤事件。
 </li>
 
 <li><b>"sub": </b>
-<code>-</code> 操作。
+<code>-</code> 運算。
 
-行為和 "add" 操作類似。
+行為和 "add" 運算類似。
 </li>
 
 <li><b>"mul": </b>
-<code>*</code> 操作。
+<code>*</code> 運算。
 
-行為和 "add" 操作類似。
+行為和 "add" 運算類似。
 </li>
 
 <li><b>"div": </b>
-<code>/</code> 操作。
+<code>/</code> 運算。
 
-行為和 "add" 操作類似。
+行為和 "add" 運算類似。
 </li>
 
 <li><b>"mod": </b>
-<code>%</code> 操作。
+<code>%</code> 運算。
 
-行為和 "add" 操作類似。
+行為和 "add" 運算類似。
 </li>
 
 <li><b>"pow": </b>
-<code>^</code> （次方）操作。
+<code>^</code> （指數）運算。
 
-行為和 "add" 操作類似。
+行為和 "add" 運算類似。
 </li>
 
 <li><b>"unm": </b>
-<code>-</code> （取負）操作。
+<code>-</code> （取負值）運算。
 
-行為和 "add" 操作類似。
+行為和 "add" 運算類似。
 </li>
 
 <li><b>"idiv": </b>
-<code>//</code> （向下取整除法）操作。
+<code>//</code> （取整數除法）運算。
 
-行為和 "add" 操作類似。
+行為和 "add" 運算類似。
 </li>
 
 <li><b>"band": </b>
-<code>&amp;</code> （按位與）操作。
+<code>&amp;</code> （位元 AND）運算。
 
-行為和 "add" 操作類似，
-不同的是 Lua 會在任何一個操作數無法轉換為整數時
-（參見 <a href="#3.4.3">&sect;3.4.3</a>）嘗試取元方法。
+行為和 "add" 運算類似，不同的是 Lua 會在任一運算元不是「整數」，也無法轉換為「整數」時（詳見 <a href="#3.4.3">&sect;3.4.3</a>）嘗試使用 metamethod（而非僅只無法轉換成 number 型別時）。
 </li>
 
 <li><b>"bor": </b>
-<code>|</code> （按位或）操作。
+<code>|</code> （位元 OR）運算。
 
-行為和 "band" 操作類似。
+行為和 "band" 運算類似。
 </li>
 
 <li><b>"bxor": </b>
-<code>~</code> （按位異或）操作。
+<code>~</code> （位元 XOR）運算。
 
-行為和 "band" 操作類似。
+行為和 "band" 運算類似。
 </li>
 
 <li><b>"bnot": </b>
-<code>~</code> （按位非）操作。
+<code>~</code> （位元 NOT）運算。
 
-行為和 "band" 操作類似。
+行為和 "band" 運算類似。
 </li>
 
 <li><b>"shl": </b>
-<code>&lt;&lt;</code> （左移）操作。
+<code>&lt;&lt;</code> （位元左移）運算。
 
-行為和 "band" 操作類似。
+行為和 "band" 運算類似。
 </li>
 
 <li><b>"shr": </b>
-<code>&gt;&gt;</code> （右移）操作。
+<code>&gt;&gt;</code> （位元右移）運算。
 
-行為和 "band" 操作類似。
+行為和 "band" 運算類似。
 </li>
 
 <li><b>"concat": </b>
-<code>..</code> （連接）操作。
+<code>..</code> （連接）運算。
 
-行為和 "add" 操作類似，
-不同的是 Lua 在任何操作數即不是一個字串
-也不是數字（數字總能轉換為對應的字串）的情況下嘗試元方法。
+行為和 "add" 運算類似，不同的是 Lua 在任一運算元不是字串也不是 number 型別（number 永遠可以轉換為 string 型別）時，會嘗試使用 metamethod。
 </li>
 
 <li><b>"len": </b>
-<code>#</code> （取長度）操作。
+<code>#</code> （取長度）運算。
 
-如果對像不是字串，Lua 會嘗試它的元方法。
-如果有元方法，則調用它並將對像以參數形式傳入，
-而返回值（被調整為單個）則作為結果。
-如果對象是一張表且沒有元方法，
-Lua 使用表的取長度操作（參見 <a href="#3.4.7">&sect;3.4.7</a>）。
-其它情況，均拋出錯誤。
+如果物件不是 string，Lua 就會嘗試使用 metamethod。如果有 metamethod，則呼叫他並將該物件當成參數傳入，回傳值（僅取第一個回傳值）則作為結果。若沒有 metamethod 但該物件是一個 table，
+Lua 會使用 table 的取長度操作（詳見 <a href="#3.4.7">&sect;3.4.7</a>）。其它情況，均會產生錯誤事件。
 </li>
 
 <li><b>"eq": </b>
-<code>==</code> （等於）操作。
+<code>==</code> （等於）運算。
 
-和 "add" 操作行為類似，
-不同的是 Lua 僅在兩個值都是表或都是完全用戶數據
-且它們不是同一個對像時才嘗試元方法。
-調用的結果總會被轉換為布爾量。
+和 "add" 運算類似，
+不同的是 Lua 僅在兩個值都是 table，或都是 full userdata，且它們實質指向不同物件時，才會嘗試使用 metamethod。呼叫的結果永遠會被轉換成 boolean 值。
 </li>
 
 <li><b>"lt": </b>
-<code>&lt;</code> （小於）操作。
+<code>&lt;</code> （小於）運算。
 
-和 "add" 操作行為類似，
-不同的是 Lua 僅在兩個值不全為整數也不全為字串時才嘗試元方法。
-調用的結果總會被轉換為布爾量。
+和 "add" 運算類似，
+不同的是 Lua 僅在兩個值不全為 number 型別，也不全為 string 型別時，才嘗試使用 metamethod。呼叫的結果永遠會被轉換成 boolean 值。
 </li>
 
 <li><b>"le": </b>
-<code>&lt;=</code> （小於等於）操作。
+<code>&lt;=</code> （小於等於）運算。
 
-和其它操作不同，
-小於等於操作可能用到兩個不同的事件。
-首先，像 "lt" 操作的行為那樣，Lua 在兩個操作數中查找 "<code>__le</code>" 元方法。
-如果一個元方法都找不到，就會再次查找 "<code>__lt</code>" 事件，
-它會假設 <code>a &lt;= b</code> 等價於 <code>not (b &lt; a)</code>。
-而其它比較操作符類似，其結果會被轉換為布爾量。
+和其它運算不同，小於等於運算可能用到兩個不同的事件。首先，像 "lt" 運算的行為那樣，Lua 會在兩個運算元中尋找 "<code>__le</code>" metamethod。如果找不到，接著就會嘗試使用 "<code>__lt</code>" 事件，並假設 <code>a &lt;= b</code> 等價於 <code>not (b &lt; a)</code>。與其他比較運算相同的，其結果永遠是 boolean 值。
 </li>
 
 <li><b>"index": </b>
-索引 <code>table[key]</code>。
+索引取得 <code>table[key]</code> 的值。
 
-當 <code>table</code> 不是表或是表 <code>table</code> 中不存在
-<code>key</code> 這個鍵時，這個事件被觸發。
-此時，會讀出 <code>table</code> 相應的元方法。
+當 <code>table</code> 其實不是 table 型別，或是 <code>table</code> 中不存在 <code>key</code> 這個索引時，這個事件就會觸發。此時，會找出 <code>table</code> 所相應的 metamethod。
 
 <p>
-儘管名字取成這樣，
-這個事件的元方法其實可以是一個函式也可以是一張表。
-如果它是一個函式，則以 <code>table</code> 和 <code>key</code> 作為參數調用它。
-如果它是一張表，最終的結果就是以 <code>key</code> 取索引這張表的結果。
-（這個索引過程是走常規的流程，而不是直接索引，
-所以這次索引有可能引發另一次元方法。）
+儘管名字這樣取，這個事件的 metamethod 其實可以是一個函式，或一個 table。如果是一個函式，則以 <code>table</code> 和 <code>key</code> 作為參數呼叫他。如果是一個 table，最後回傳的就是以 <code>key</code> 來索引這個 table 的結果。（這個索引過程是走常規的流程，而非「直接存取」，所以這個索引行為可以觸發另一個 metamethod。）
 </li>
 
 <li><b>"newindex": </b>
-索引賦值 <code>table[key] = value</code> 。
 
-和索引事件類似，它發生在
-<code>table</code> 不是表或是表 <code>table</code> 中不存在
-<code>key</code> 這個鍵的時候。
-此時，會讀出 <code>table</code> 相應的元方法。
+索引指定 <code>table[key] = value</code>。
+
+和 "index" 事件類似，發生於 <code>table</code> 其實不是 table 型別，或是 <code>table</code> 中不存在 <code>key</code> 這個索引時。此時，會找出 <code>table</code> 所相應的 metamethod。
 
 <p>
-同索引過程那樣，
-這個事件的元方法即可以是函式，也可以是一張表。
-如果是一個函式，
-則以 <code>table</code>、 <code>key</code>、以及 <code>value</code> 為參數傳入。
-如果是一張表，
-Lua 對這張表做索引賦值操作。
-（這個索引過程是走常規的流程，而不是直接索引賦值，
-所以這次索引賦值有可能引發另一次元方法。）
-
+如同索引過程那樣，這個事件的 metamethod 可以是函式，或一個 table。如果是一個函式，則以 <code>table</code>、 <code>key</code>、以及 <code>value</code> 作為參數傳入。如果是一個 table，Lua 就會將這對 <code>key</code> 與 <code>value</code> 指定給該 <code>table</table>。（這個指定過程是走常規的流程，而非「直接存取」，所以這個指定行為可以觸發另一個 metamethod。）
 
 <p>
-一旦有了 "newindex" 元方法，
-Lua 就不再做最初的賦值操作。
-（如果有必要，在元方法內部可以調用 <a href="#pdf-rawset"><code>rawset</code></a>
-來做賦值。）
+一旦有了 "newindex" metamethod，Lua 就不再進行原始的指定操作。（如果有必要，在 metamethod 內部可以呼叫 <a href="#pdf-rawset"><code>rawset</code></a> 來進行指定。）
 </li>
 
 <li><b>"call": </b>
-函式調用操作 <code>func(args)</code>。
 
-當 Lua 嘗試調用一個非函式的值的時候會觸發這個事件
-（即 <code>func</code> 不是一個函式）。
-查找 <code>func</code> 的元方法，
-如果找得到，就調用這個元方法，
-<code>func</code> 作為第一個參數傳入，原來調用的參數（<code>args</code>）後依次排在後面。
+函式呼叫 <code>func(args)</code>。
+
+當 Lua 嘗試呼叫一個非函式的值的時候，會觸發這個事件（即 <code>func</code> 不是函式型別時）。尋找 <code>func</code> 的 metamethod，如果找得到，就呼叫他，且 <code>func</code> 作為第一個參數傳入，而原本呼叫時的參數（<code>args</code>）依序排在後面。
 </li>
 
 </ul>
