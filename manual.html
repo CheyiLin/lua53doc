@@ -80,7 +80,7 @@ Lua 中有八種基本型別：<em>nil</em>、<em>boolean</em>、<em>number</em>
 Lua 可以呼叫（及操作）用 Lua 與 C 語言（詳見 <a href="#3.4.10">&sect;3.4.10</a>）編寫的函式，兩者的型別都是 <em>function</em>。
 
 <p>
-<em>userdata</em> 型別是用來讓任意的 C 語言資料得以存於 Lua 變數中。<em>userdata</em> 的值代表的是一個記憶體區塊。<em>userdata</em> 有兩種形式：<em>full userdata</em>，是一個由 Lua 所管理的記憶體區塊對應的物件；<em>light userdata</em>，則是一個單純的 C 指標。<em>userdata</em> 在 Lua 中除了指定與相等性判斷之外，沒有其他的預設操作。透過使用 <em>metatable</em>，程式設計者可以定義 <em>full userdata</em> 的各項操作（詳見 <a href="#2.4">&sect;2.4</a>）。<em>userdata</em> 值不能在 Lua 中被建立或修改，必須通過使用 Lua/C API 才行，以確保 <em>host</em> 程式對於其資料有完整控制權。
+<em>userdata</em> 型別是用來讓任意的 C 語言資料得以存於 Lua 變數中。<em>userdata</em> 的值代表的是一個記憶體區塊。<em>userdata</em> 有兩種形式：<em>full userdata</em>，是一個由 Lua 所管理的記憶體區塊對應的物件；<em>light userdata</em>，則是一個單純的 C 指標。<em>userdata</em> 在 Lua 中除了指定與相等性判斷之外，沒有其他的預設操作。透過使用 <em>metatable</em>，程式設計者可以定義 <em>full userdata</em> 的各項操作（詳見 <a href="#2.4">&sect;2.4</a>）。<em>userdata</em> 值不能在 Lua 中被建立或修改，必須通過使用 Lua 的 C API 才行，以確保 <em>host</em> 程式對於其資料有完整控制權。
 
 <p>
 <em>thread</em> 型別代表獨立的執行流程，用於實作 <em>coroutine</em> 功能（詳見 <a href="#2.6">&sect;2.6</a>）。Lua 的 <em>thread</em> 與作業系統的執行緒毫無關係。Lua 的 <em>coroutine</em> 功能可以在所有系統上使用，包括那些沒有原生執行緒的系統。
@@ -140,67 +140,33 @@ Lua 本身會持有一個被稱為 <em>全域環境</em> 的特別環境。這�
 
 
 
-<h2>2.4 &ndash; <a name="2.4">元表及元方法</a></h2>
+<h2>2.4 &ndash; <a name="2.4">Metatable 以及 Metamethod</a></h2>
+
+<p>所有在 Lua 中的值都可以有一個 <em>metatable</em>。Metatable 本身就是一個普通的 Lua table，用以定義各種 Lua 值在特定操作下的行為。透過設定某個值的 metatable 的對應欄位，你可以改變該值在這些操作下的行為。例如，當非數字值進行相加操作時，Lua 會檢查該值的 metatable 中的 "<code>__add</code>" 欄位裡面是否存在函式。如果能找到，Lua 就會呼叫這個函式來進行相加操作。
 
 <p>
-Lua 中的每個值都可以有一個 <em>元表</em>。
-這個 <em>元表</em> 就是一個普通的 Lua 表，
-它用於定義原始值在特定操作下的行為。
-如果你想改變一個值在特定操作下的行為，你可以在它的元表中設置對應域。
-例如，當你對非數字值做加操作時，
-Lua 會檢查該值的元表中的 "<code>__add</code>" 域下的函式。
-如果能找到，Lua 則調用這個函式來完成加這個操作。
-
+metatable 中的各索引乃引申自不同的事件名稱；而他們對應的值就被稱為 <em>metamethod</em>。在上個例子中，發生的事件是 "add"，而進行相加操作的函式就是 metamethod。 
 
 <p>
-元表中的鍵對應著不同的 <em>事件</em> 名；
-鍵關聯的那些值被稱為 <em>元方法</em>。
-在上面那個例子中引用的事件為 <code>"add"</code> ，
-完成加操作的那個函式就是元方法。
-
+你可以用 <a href="#pdf-getmetatable"><code>getmetatable</code></a> 函式來取得任何值的 metatable。
 
 <p>
-你可以用 <a href="#pdf-getmetatable"><code>getmetatable</code></a> 函式
-來獲取任何值的元表。
-
+另外，你可以用 <a href="#pdf-setmetatable"><code>setmetatable</code></a> 來替換一個 table 值的 metatable。你不可以改變其他型別的值的 metatable（除非你使用 Lua 的 debug 函式庫，詳見 <a href="#6.10">&sect;6.10</a>）；若想改變這些型別的值的 metatable，請使用 C API。
 
 <p>
-使用 <a href="#pdf-setmetatable"><code>setmetatable</code></a> 
-來替換一張表的元表。在 Lua 中，你不可以改變表以外其它型別的值的元表
-（除非你使用調試庫（參見<a href="#6.10">&sect;6.10</a>））；
-若想改變這些非表型別的值的元表，請使用 C API。
-
+Table 與 full userdata 擁有獨立的 metatable（當然，不同的 table 與 userdata 可以共享同一個 metatable）。其他型別的值則是依型別使用單一的 metatable；也就是說，所有 number 型別的值都使用同一個 metatable，所有 string 值使用另一個 metatable，依此類推。預設狀況下，一般值是沒有 metatable 的，但 Lua 的 string 函式庫會替 string 型別指定好一個 metatable（詳見 <a href="#6.4">&sect;6.4</a>）。
 
 <p>
-表和完全用戶數據有獨立的元表
-（當然，多個表和用戶數據可以共享同一個元表）。
-其它型別的值按型別共享元表；
-也就是說所有的數字都共享同一個元表，
-所有的字串共享另一個元表等等。
-默認情況下，值是沒有元表的，
-但字串庫在初始化的時候為字串型別設置了元表
-（參見 <a href="#6.4">&sect;6.4</a>）。
-
+Metatable 決定了一個物件在數學運算、位元運算、排序比較、連接操作、長度計算、函式呼叫、索引取值時的行為。Metatable 也可以定義當 userdata 及 table 要被垃圾回收時（詳見<a href="#2.5">&sect;2.5</a>），所該呼叫的函式。
 
 <p>
-元表決定了一個對像在數學運算、位運算、比較、連接、
-取長度、調用、索引時的行為。
-元表還可以定義一個函式，當表對像或用戶數據對像在垃圾回收
-（參見<a href="#2.5">&sect;2.5</a>）時調用它。
-
-
-<p>
-接下來會給出一張元表可以控制的事件的完整列表。
-每個操作都用對應的事件名來區分。
-每個事件的鍵名用加有 '<code>__</code>' 前綴的字串來表示；
-例如 "add" 操作的鍵名為字串 "<code>__add</code>"。
-注意、Lua 從元表中直接獲取元方法；
-訪問元表中的元方法永遠不會觸發另一次元方法。
-下面的代碼模擬了 Lua 從一個對像 <code>obj</code> 中獲取一個元方法的過程：
+下面將列出一個 metatable 可以控制的事件的完整列表，每個操作都用對應的事件名來區分。對應事件的索引名稱，則用加有 '<code>__</code>' 前綴的字串來表示；例如，"add" 事件的索引為 "<code>__add</code>"。須注意的是，對 metamethod 的存取永遠是「直接存取」，因此在對一個 metamethod 進行存取時不會觸發其他的 metamethod。下面這行程式說明了 Lua 從一個 <code>obj</code> 物件中，取用一個 metamethod 的方式：
 
 <pre>
      rawget(getmetatable(obj) or {}, "__" .. event_name)
 </pre>
+
+For the unary operators (negation, length, and bitwise not), the metamethod is computed and called with a dummy second operand, equal to the first one. This extra operand is only to simplify Lua's internals (by making these operators behave like a binary operation) and may be removed in future versions. (For most uses this extra operand is irrelevant.)
 
 <p>
 對於一元操作符（取負、求長度、位反），
