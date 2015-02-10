@@ -306,7 +306,7 @@ Lua 會使用 table 的取長度操作（詳見 <a href="#3.4.7">&sect;3.4.7</a>
 和 "index" 事件類似，發生於 <code>table</code> 其實不是 table 型別，或是 <code>table</code> 中不存在 <code>key</code> 這個索引時。此時，會找出 <code>table</code> 所相應的 metamethod。
 
 <p>
-如同索引過程那樣，這個事件的 metamethod 可以是函式，或一個 table。如果是一個函式，則以 <code>table</code>、 <code>key</code>、以及 <code>value</code> 作為參數傳入。如果是一個 table，Lua 就會將這對 <code>key</code> 與 <code>value</code> 指定給該 <code>table</table>。（這個指定過程是走常規的流程，而非「直接存取」，所以這個指定行為可以觸發另一個 metamethod。）
+如同索引過程那樣，這個事件的 metamethod 可以是函式，或一個 table。如果是一個函式，則以 <code>table</code>、 <code>key</code>、以及 <code>value</code> 作為參數傳入。如果是一個 table，Lua 就會將這對 <code>key</code> 與 <code>value</code> 指定給該 <code>table</code>。（這個指定過程是走常規的流程，而非「直接存取」，所以這個指定行為可以觸發另一個 metamethod。）
 
 <p>
 一旦有了 "newindex" metamethod，Lua 就不再進行原始的指定操作。（如果有必要，在 metamethod 內部可以呼叫 <a href="#pdf-rawset"><code>rawset</code></a> 來進行指定。）
@@ -371,8 +371,8 @@ Lua 實現了一個增量標記-掃瞄收集器。
 
 
 <p>
-你可以通過在 C 中調用 <a href="#lua_gc"><code>lua_gc</code></a>
-或在 Lua 中調用 <a href="#pdf-collectgarbage"><code>collectgarbage</code></a>
+你可以通過在 C 中呼叫 <a href="#lua_gc"><code>lua_gc</code></a>
+或在 Lua 中呼叫 <a href="#pdf-collectgarbage"><code>collectgarbage</code></a>
 來改變這倆數字。
 這兩個函式也可以用來直接控制收集器（例如停止它或重啟它）。
 
@@ -407,7 +407,7 @@ Lua 實現了一個增量標記-掃瞄收集器。
 取而代之的是，Lua 會將其置入一個鏈表。
 在收集完成後，Lua 將遍歷這個鏈表。
 Lua 會檢查每個鏈表中的對象的 <code>__gc</code>
-元方法：如果是一個函式，那麼就以對像為唯一參數調用它；
+元方法：如果是一個函式，那麼就以對像為唯一參數呼叫它；
 否則直接忽略它。
 
 
@@ -415,7 +415,7 @@ Lua 會檢查每個鏈表中的對象的 <code>__gc</code>
 在每次垃圾收集循環的最後階段，
 本次循環中檢測到的需要被回收之對象，
 其終結器的觸發次序按當初給對像作需要觸發終結器的標記之次序的逆序進行；
-這就是說，第一個被調用的終結器是程序中最後一個被標記的對象所攜的那個。
+這就是說，第一個被呼叫的終結器是程序中最後一個被標記的對象所攜的那個。
 每個終結器的運行可能發生在執行常規代碼過程中的任意一刻。
 
 
@@ -426,7 +426,7 @@ Lua 會檢查每個鏈表中的對象的 <code>__gc</code>
 然後，若終結器又將對像保存去一些全局的地方
 （例如：放在一個全局變量裡），這次復活就持續生效了。
 此外，如果在終結器中對一個正進入終結流程的對象再次做一次標記讓它觸發終結器，
-只要這個對象在下個循環中依舊不可達，它的終結函式還會再調用一次。
+只要這個對象在下個循環中依舊不可達，它的終結函式還會再呼叫一次。
 無論是哪種情況，
 對像所屬記憶體僅在垃圾收集循環中該對像不可達且
 沒有被標記成需要觸發終結器才會被釋放。
@@ -434,7 +434,7 @@ Lua 會檢查每個鏈表中的對象的 <code>__gc</code>
 
 <p>
 當你關閉一個狀態機（參見 <a href="#lua_close"><code>lua_close</code></a>），
-Lua 將調用所有被標記了需要觸發終結器對象的終結過程，
+Lua 將呼叫所有被標記了需要觸發終結器對象的終結過程，
 其次序為標記次序的逆序。
 在這個過程中，任何終結器再次標記對象的行為都不會生效。
 
@@ -511,11 +511,11 @@ Lua 將調用所有被標記了需要觸發終結器對象的終結過程，
 Lua 支持協程，同時它也被稱為 <em>協同式多線程</em>。
 Lua 為每個協程提供一個獨立的運行序。
 然而和多線程系統中的線程不同，
-協程僅在顯式地調用一個讓出函式時才掛起當前的執行狀態。
+協程僅在顯式地呼叫一個讓出函式時才掛起當前的執行狀態。
 
 
 <p>
-通過調用
+通過呼叫
 <a href="#pdf-coroutine.create"><code>coroutine.create</code></a>
 可創建一個協程。
 它唯一的參數是一個函式，這個函式將作為這個協程的主函式。
@@ -525,10 +525,10 @@ Lua 為每個協程提供一個獨立的運行序。
 
 
 <p>
-通過調用
+通過呼叫
 <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a>
 可執行一個協程。
-第一次調用
+第一次呼叫
 <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a>
 時，第一個參數應傳入
 <a href="#pdf-coroutine.create"><code>coroutine.create</code></a>
@@ -552,19 +552,19 @@ Lua 為每個協程提供一個獨立的運行序。
 
 
 <p>
-讓出協程的執行通過調用
+讓出協程的執行通過呼叫
 <a href="#pdf-coroutine.yield"><code>coroutine.yield</code></a> 完成。
 當協程讓出，
-即使讓出發生在內嵌函式調用中
-（即不在主函式，但在主函式直接或間接調用的函式內部），
-之前對該協程調用的 <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a> 會立刻返回。
+即使讓出發生在內嵌函式呼叫中
+（即不在主函式，但在主函式直接或間接呼叫的函式內部），
+之前對該協程呼叫的 <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a> 會立刻返回。
 在讓出的情況下，
 <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a> 依舊返回 <b>true</b>，
 接下來的返回值是傳給
 <a href="#pdf-coroutine.yield"><code>coroutine.yield</code></a> 的那些參數。
 當下一次你延續同一個協程時，
 協程會接在讓出點繼續運行。
-調用 <a href="#pdf-coroutine.yield"><code>coroutine.yield</code></a>
+呼叫 <a href="#pdf-coroutine.yield"><code>coroutine.yield</code></a>
 的讓出點會返回傳給
 <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a>
 的額外參數。
@@ -575,7 +575,7 @@ Lua 為每個協程提供一個獨立的運行序。
 <a href="#pdf-coroutine.create"><code>coroutine.create</code></a> 那樣，
 <a href="#pdf-coroutine.wrap"><code>coroutine.wrap</code></a> 函式也會創建一個協程。
 不同的是，它不返回協程本身，而是返回一個函式。
-調用這個函式將延續這個協程。
+呼叫這個函式將延續這個協程。
 為這個函式提供的參數相當於
 傳給 <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a> 的額外參數。
 <a href="#pdf-coroutine.wrap"><code>coroutine.wrap</code></a>
@@ -585,7 +585,7 @@ Lua 為每個協程提供一個獨立的運行序。
 和 <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a> 不同，
 <a href="#pdf-coroutine.wrap"><code>coroutine.wrap</code></a>
 不會捕獲錯誤；
-錯誤會傳播給調用者。
+錯誤會傳播給呼叫者。
 
 
 <p>
@@ -846,10 +846,10 @@ Lua 中有三種變量：
 </pre><p>
 對全局變量以及表的域之訪問的含義可以通過元表來改變。 
 以索引方式訪問一個變量 <code>t[i]</code> 等價於
-調用 <code>gettable_event(t,i)</code>。
+呼叫 <code>gettable_event(t,i)</code>。
 （參見 <a href="#2.4">&sect;2.4</a> ，有一份完整的關於
 <code>gettable_event</code> 函式的說明。
-這個函式並沒有在 lua 中定義出來，也不能在 lua 中調用。這裡我們把提到它只是方便說明問題。）
+這個函式並沒有在 lua 中定義出來，也不能在 lua 中呼叫。這裡我們把提到它只是方便說明問題。）
 
 
 <p>
@@ -874,7 +874,7 @@ Lua 中有三種變量：
 
 <p>
 Lua 支持所有與 Pascal 或是 C 類似的常見形式的語句，
-這個集合包括賦值，控制結構，函式調用，還有變量聲明。
+這個集合包括賦值，控制結構，函式呼叫，還有變量聲明。
 
 
 
@@ -895,7 +895,7 @@ Lua 支持 <em>空語句</em>，
 </pre>
 
 <p>
-函式調用和賦值語句都可能以一個小括號打頭，
+函式呼叫和賦值語句都可能以一個小括號打頭，
 這可能讓 Lua 的語法產生歧義。
 我們來看看下面的代碼片斷：
 
@@ -911,7 +911,7 @@ Lua 支持 <em>空語句</em>，
      a = b + c; (print or io.write)('done')
 </pre><p>
 當前的解析器總是用第一種結構來解析，
-它會將開括號看成函式調用的參數傳遞開始處。
+它會將開括號看成函式呼叫的參數傳遞開始處。
 為了避免這種二義性，
 在一條語句以小括號開頭時，前面放一個分號是個好習慣：
 
@@ -994,9 +994,9 @@ Lua 允許多重賦值。
 如果值比需要的更多的話，多餘的值就被扔掉。 
 如果值的數量不夠需求，
 將會按所需擴展若干個 <b>nil</b>。
-如果表達式列表以一個函式調用結束，
+如果表達式列表以一個函式呼叫結束，
 這個函式所返回的所有值都會在調整操作之前被置入值列表中
-（除非這個函式調用被用括號括了起來；參見 <a href="#3.4">&sect;3.4</a>）。
+（除非這個函式呼叫被用括號括了起來；參見 <a href="#3.4">&sect;3.4</a>）。
 
 
 
@@ -1031,7 +1031,7 @@ Lua 允許多重賦值。
 等價於 <code>settable_event(t,i,val)</code>。
 （關於函式 <code>settable_event</code> 的詳細說明，參見
 <a href="#2.4">&sect;2.4</a>。
-這個函式並沒有在 Lua 中定義出來，也不可以被調用。
+這個函式並沒有在 Lua 中定義出來，也不可以被呼叫。
 這裡我們列出來，僅僅出於方便解釋的目的。）
 
 
@@ -1205,7 +1205,7 @@ Lua 裡的標籤也被認為是語句：
 
 <p>
 通用形式的 <b>for</b> 通過一個叫作 <em>迭代器</em> 的函式工作。
-每次迭代，迭代器函式都會被調用以產生一個新的值，
+每次迭代，迭代器函式都會被呼叫以產生一個新的值，
 當這個值為 <b>nil</b> 時，循環停止。 
 通用形式的 <b>for</b> 循環的語法如下：
 
@@ -1263,15 +1263,15 @@ Lua 裡的標籤也被認為是語句：
 
 
 
-<h3>3.3.6 &ndash; <a name="3.3.6">函式調用語句</a></h3><p>
+<h3>3.3.6 &ndash; <a name="3.3.6">函式呼叫語句</a></h3><p>
 為了允許使用函式的副作用，
-函式調用可以被作為一個語句執行：
+函式呼叫可以被作為一個語句執行：
 
 <pre>
 	stat ::= functioncall
 </pre><p>
 在這種情況下，所有的返回值都被捨棄。
-函式調用在 <a href="#3.4.10">&sect;3.4.10</a> 中解釋。
+函式呼叫在 <a href="#3.4.10">&sect;3.4.10</a> 中解釋。
 
 
 
@@ -1327,7 +1327,7 @@ Lua 中有這些基本表達式：
 數字和字面串在 <a href="#3.1">&sect;3.1</a> 中解釋；
 變量在 <a href="#3.2">&sect;3.2</a> 中解釋；
 函式定義在 <a href="#3.4.11">&sect;3.4.11</a> 中解釋；
-函式調用在 <a href="#3.4.10">&sect;3.4.10</a> 中解釋；
+函式呼叫在 <a href="#3.4.10">&sect;3.4.10</a> 中解釋；
 表的構造在 <a href="#3.4.9">&sect;3.4.9</a> 中解釋。
 可變參數的表達式寫作三個點（'<code>...</code>'），
 它只能在有可變參數的函式中直接使用；這些在 <a href="#3.4.11">&sect;3.4.11</a> 中解釋。
@@ -1347,8 +1347,8 @@ Lua 中有這些基本表達式：
 
 
 <p>
-函式調用和可變參數表達式都可以放在多重返回值中。 
-如果函式調用被當作一條語句（參見 <a href="#3.3.6">&sect;3.3.6</a>），
+函式呼叫和可變參數表達式都可以放在多重返回值中。 
+如果函式呼叫被當作一條語句（參見 <a href="#3.3.6">&sect;3.3.6</a>），
 其返回值列表被調整為零個元素，即拋棄所有的返回值。
 如果表達式被用於表達式列表的最後（或是唯一的）一個元素，
 那麼不會做任何調整（除非表達式被括號括起來）。
@@ -1572,7 +1572,7 @@ Lua 支持下列比較操作符：
 它們按二元操作的常規進行。
 否則，如果兩個參數都是字串，
 它們的值按當前的區域設置來比較。
-再則，Lua 就試著調用 "lt" 或是 "le" 元方法
+再則，Lua 就試著呼叫 "lt" 或是 "le" 元方法
 （參見 <a href="#2.4">&sect;2.4</a>）。
 <code>a &gt; b</code> 的比較被轉譯為 <code>b &lt; a</code>，
 <code>a &gt;= b</code> 被轉譯為 <code>b &lt;= a</code>。
@@ -1620,7 +1620,7 @@ Lua 中的邏輯操作符有 <b>and</b>， <b>or</b>，以及 <b>not</b>。
 Lua 中字串的連接操作符寫作兩個點（'<code>..</code>'）。
 如果兩個操作數都是字串或都是數字，
 連接操作將以 <a href="#3.4.3">&sect;3.4.3</a> 中提到的規則把其轉換為字串。
-否則，會調用元方法 <code>__concat</code> （參見 <a href="#2.4">&sect;2.4</a>）。
+否則，會呼叫元方法 <code>__concat</code> （參見 <a href="#2.4">&sect;2.4</a>）。
 
 
 
@@ -1734,7 +1734,7 @@ Lua 中操作符的優先級寫在下表中，從低到高優先級排序：
 
 <p>
 如果表單中最後一個域的形式是 <code>exp</code> ，
-而且其表達式是一個函式調用或者是一個可變參數，
+而且其表達式是一個函式呼叫或者是一個可變參數，
 那麼這個表達式所有的返回值將依次進入列表 
 （參見 <a href="#3.4.10">&sect;3.4.10</a>）。
 
@@ -1746,19 +1746,19 @@ Lua 中操作符的優先級寫在下表中，從低到高優先級排序：
 
 
 
-<h3>3.4.10 &ndash; <a name="3.4.10">函式調用</a></h3><p>
-Lua 中的函式調用的語法如下：
+<h3>3.4.10 &ndash; <a name="3.4.10">函式呼叫</a></h3><p>
+Lua 中的函式呼叫的語法如下：
 
 <pre>
 	functioncall ::= prefixexp args
 </pre><p>
-函式調用時，
+函式呼叫時，
 第一步，prefixexp 和 args 先被求值。
 如果 prefixexp 的值的型別是 <em>function</em>，
-那麼這個函式就被用給出的參數調用。
-否則 prefixexp 的元方法 "call" 就被調用，
+那麼這個函式就被用給出的參數呼叫。
+否則 prefixexp 的元方法 "call" 就被呼叫，
 第一個參數是 prefixexp 的值，
-接下來的是原來的調用參數 
+接下來的是原來的呼叫參數 
 （參見 <a href="#2.4">&sect;2.4</a>）。
 
 
@@ -1768,7 +1768,7 @@ Lua 中的函式調用的語法如下：
 <pre>
 	functioncall ::= prefixexp &lsquo;<b>:</b>&rsquo; Name args
 </pre><p>
-可以用來調用 "方法"。
+可以用來呼叫 "方法"。
 這是 Lua 支持的一種語法糖。
 像 <code>v:name(args)</code> 這個樣子，
 被解釋成 <code>v.name(v,args)</code>，
@@ -1783,8 +1783,8 @@ Lua 中的函式調用的語法如下：
 	args ::= tableconstructor
 	args ::= LiteralString
 </pre><p>
-所有參數的表達式求值都在函式調用之前。
-這樣的調用形式 <code>f{fields}</code> 是一種語法糖用於表示
+所有參數的表達式求值都在函式呼叫之前。
+這樣的呼叫形式 <code>f{fields}</code> 是一種語法糖用於表示
 <code>f({fields})</code>；
 這裡指參數列表是一個新創建出來的列表。
 而這樣的形式 <code>f'<em>string</em>'</code>
@@ -1795,15 +1795,15 @@ Lua 中的函式調用的語法如下：
 
 <p>
 <code>return <em>functioncall</em></code> 
-這樣的調用形式將觸發一次 <em>尾調用</em>。
-Lua 實現了 <em>完全尾調用</em>（或稱為 <em>完全尾遞歸</em>）：
-在尾調用中， 被調用的函式重用調用它的函式的堆堆疊項。
-因此，對於程序執行的嵌套尾調用的層數是沒有限制的。
-然而，尾調用將刪除調用它的函式的任何調試信息。
-注意，尾調用只發生在特定的語法下，
-僅當 <b>return</b> 只有單一函式調用作為參數時才發生尾調用；
-這種語法使得調用函式的所有結果可以完整地返回。
-因此，下面這些例子都不是尾調用：
+這樣的呼叫形式將觸發一次 <em>尾呼叫</em>。
+Lua 實現了 <em>完全尾呼叫</em>（或稱為 <em>完全尾遞歸</em>）：
+在尾呼叫中， 被呼叫的函式重用呼叫它的函式的堆堆疊項。
+因此，對於程序執行的嵌套尾呼叫的層數是沒有限制的。
+然而，尾呼叫將刪除呼叫它的函式的任何調試信息。
+注意，尾呼叫只發生在特定的語法下，
+僅當 <b>return</b> 只有單一函式呼叫作為參數時才發生尾呼叫；
+這種語法使得呼叫函式的所有結果可以完整地返回。
+因此，下面這些例子都不是尾呼叫：
 
 <pre>
      return (f(x))        -- 返回值被調整為一個
@@ -1888,7 +1888,7 @@ Lua 實現了 <em>完全尾調用</em>（或稱為 <em>完全尾遞歸</em>）�
 <pre>
 	parlist ::= namelist [&lsquo;<b>,</b>&rsquo; &lsquo;<b>...</b>&rsquo;] | &lsquo;<b>...</b>&rsquo;
 </pre><p>
-當一個函式被調用，
+當一個函式被呼叫，
 如果函式並非一個 <em>可變參數函式</em>，
 即在形參列表的末尾註明三個點 ('<code>...</code>')，
 那麼實參列表就會被調整到形參列表的長度。
@@ -2019,24 +2019,24 @@ Lua 語言有詞法作用範圍。
 <h1>4 &ndash; <a name="4">API 應用程式介面</a></h1>
 
 <p>
-這個部分描述了 Lua 的 C API ，
-也就是宿主程序跟 Lua 通訊用的一組 C 函式。 
-所有的 API 函式按相關的型別以及常量都聲明在頭文件 
+這個部分描述了 Lua 的 C API，
+也就是 Host 程式跟 Lua 通訊用的一組 C 函式。
+所有的 API 函式按相關的型別以及常數都定義在標頭檔 
 <a name="pdf-lua.h"><code>lua.h</code></a> 中。
 
 
 <p>
 雖然我們說的是「函式」，
-但一部分簡單的 API 是以宏的形式提供的。 
+但一部分簡單的 API 是以巨集的形式提供的。
 除非另有說明，
-所有的這些宏都只使用它們的參數一次 
+所有的這些巨集都只使用它們的參數一次 
 （除了第一個參數，那一定是 Lua 狀態），
-因此你不需擔心這些宏的展開會引起一些副作用。
+因此你不需擔心這些巨集的展開會引起一些副作用。
 
 
 <p>
-C 庫中所有的 Lua API 函式都不去檢查參數是否相容及有效。
-然而，你可以在編譯 Lua 時加上打開一個宏開關
+Lua API 中所有的函式都不去檢查參數是否相容及有效。
+然而，你可以在編譯 Lua 時加上打開一個巨集開關
 <a name="pdf-LUA_USE_APICHECK"><code>LUA_USE_APICHECK</code></a>
 來改變這個行為。
 
@@ -2050,10 +2050,10 @@ Lua 使用一個 <em>虛擬堆疊</em> 來和 C 互傳值。
 
 
 <p>
-無論何時 Lua 調用 C，被調用的函式都得到一個新的堆疊，
+無論何時 Lua 呼叫 C，被呼叫的函式都得到一個新的堆疊，
 這個堆疊獨立於 C 函式本身的堆疊，也獨立於之前的 Lua 堆疊。
 它裡面包含了 Lua 傳遞給 C 函式的所有參數，
-而 C 函式則把要返回的結果放入這個堆疊以返回給調用者 
+而 C 函式則把要回傳的結果放入這個堆疊以回傳給呼叫者 
 （參見 <a href="#lua_CFunction"><code>lua_CFunction</code></a>）。
 
 
@@ -2061,11 +2061,10 @@ Lua 使用一個 <em>虛擬堆疊</em> 來和 C 互傳值。
 方便起見，
 所有針對堆疊的 API 查詢操作都不嚴格遵循堆疊的操作規則。
 而是可以用一個 <em>索引</em> 來指向堆疊上的任何元素：
-正的索引指的是堆疊上的絕對位置（從1開始）；
+正的索引指的是堆疊上的絕對位置（從 1 開始）；
 負的索引則指從堆疊頂開始的偏移量。
 展開來說，如果堆堆疊有 <em>n</em> 個元素，
-那麼索引 1 表示第一個元素
-（也就是最先被壓堆疊的元素）
+那麼索引 1 表示第一個元素（也就是最先被推入堆疊的元素）
 而索引 <em>n</em> 則指最後一個元素；
 索引 -1 也是指最後一個元素
 （即堆疊頂的元素）， 
@@ -2077,30 +2076,28 @@ Lua 使用一個 <em>虛擬堆疊</em> 來和 C 互傳值。
 <h2>4.2 &ndash; <a name="4.2">堆疊大小</a></h2>
 
 <p>
-當你使用 Lua API 時，
-就有責任保證做恰當的調用。 
+當你使用 Lua API 時，就有責任保證做適當的呼叫。
 特別需要注意的是，
-<em>你有責任控制不要堆堆疊溢出</em>。
+<em>你有責任控制不讓堆疊溢出 (stack overflow)</em>。
 你可以使用 <a href="#lua_checkstack"><code>lua_checkstack</code></a>
-這個函式來擴大可用堆堆疊的尺寸。
+這個函式來確保堆疊有足夠空間來推入新元素。
 
 
 <p>
-無論何時 Lua 調用 C ，
+無論何時 Lua 呼叫 C ，
 它都只保證至少有
 <a name="pdf-LUA_MINSTACK"><code>LUA_MINSTACK</code></a>
-這麼多的堆堆疊空間可以使用。
-<code>LUA_MINSTACK</code> 一般被定義為 20 ，
-因此，只要你不是不斷的把數據壓堆疊，
-通常你不用關心堆堆疊大小。
+這麼多的堆疊空間可以使用。
+<code>LUA_MINSTACK</code> 一般被定義為 20，
+因此，只要你不是不斷地推入新元素，通常你不用關心堆疊大小。
 
 
 <p>
-當你調用一個 Lua 函式卻沒有指定要接收多少個返回值時
-（參見 <a href="#lua_call"><code>lua_call</code></a>），
-Lua 可以保證堆疊一定有足夠的空間來接收所有的返回值，
-但不保證此外留有額外的空間。
-因此，在做了一次這樣的調用後，如果你需要繼續壓堆疊，
+當你呼叫一個 Lua 函式卻沒有指定要接收多少個回傳值時
+（參考 <a href="#lua_call"><code>lua_call</code></a>），
+Lua 可以保證堆疊一定有足夠的空間來接收所有的回傳值，
+但不保證還留有額外的空間。
+因此，在做了一次這樣的呼叫後，如果還需要繼續將元素推入堆疊，
 則需要使用 <a href="#lua_checkstack"><code>lua_checkstack</code></a>。
 
 
@@ -2131,7 +2128,7 @@ API 中的函式若需要傳入堆疊索引，這個索引必須是
 <p>
 對於那些只是需要堆疊中的值（例如查詢函式）
 而不需要指定一個堆疊位置的函式，
-可以用一個可接受的索引去調用它們。
+可以用一個可接受的索引去呼叫它們。
 <em>可接受索引</em> 不僅可以是任何包括偽索引在內的有效索引，
 還可以是任何超過堆疊頂但落在為堆疊分配出來的空間內的正索引。
 （注意 0 永遠都不是一個可接受索引。）
@@ -2146,7 +2143,7 @@ API 中的函式若需要傳入堆疊索引，這個索引必須是
 
 
 <p>
-對於那些以可接受索引調用的函式，
+對於那些以可接受索引呼叫的函式，
 無效索引被看作包含了一個虛擬型別
 <a name="pdf-LUA_TNONE"><code>LUA_TNONE</code></a> 的值，
 這個值的行為和 nil 一致。
@@ -2162,15 +2159,15 @@ API 中的函式若需要傳入堆疊索引，這個索引必須是
 也就是創建一個 <em>C Closure</em>
 （參見 <a href="#lua_pushcclosure"><code>lua_pushcclosure</code></a>）；
 這些被關聯起來的值被叫做 <em>上值</em> ，
-它們可以在函式被調用的時候訪問的到。 
+它們可以在函式被呼叫的時候訪問的到。 
 
 
 <p>
-無論何時去調用 C 函式，
+無論何時去呼叫 C 函式，
 函式的上值都可以用偽索引定位。
 我們可以用
 <a href="#lua_upvalueindex"><code>lua_upvalueindex</code></a>
-這個宏來生成這些偽索引。
+這個巨集來生成這些偽索引。
 第一個關聯到函式的值放在
 <code>lua_upvalueindex(1)</code> 位置處，依此類推。 
 使用 <code>lua_upvalueindex(<em>n</em>)</code> 時，
@@ -2234,7 +2231,7 @@ Lua 提供了一個 <em>註冊表</em>，
 當 Lua 碰到任何錯誤
 （比如記憶體分配錯誤、型別錯誤、語法錯誤、還有運行時錯誤）
 它都會 <em>拋出</em>一個錯誤出去；
-也就是調用一次長跳轉。
+也就是呼叫一次長跳轉。
 在 <em>保護環境</em> 下，
 Lua 使用 <code>setjmp</code> 來設置一個恢復點；
 任何發生的錯誤都會跳轉到最近的一個恢復點。
@@ -2242,8 +2239,8 @@ Lua 使用 <code>setjmp</code> 來設置一個恢復點；
 
 <p>
 如果錯誤發生在保護環境之外，
-Lua 會先調用 <em>panic 函式</em> （參見 <a href="#lua_atpanic"><code>lua_atpanic</code></a>）
-然後調用 <code>abort</code> 來退出宿主程序。
+Lua 會先呼叫 <em>panic 函式</em> （參見 <a href="#lua_atpanic"><code>lua_atpanic</code></a>）
+然後呼叫 <code>abort</code> 來退出宿主程序。
 你的 panic 函式只要不返回
 （例如：長跳轉到你在 Lua 外你自己設置的恢復點）
 就可以不退出程序。
@@ -2264,7 +2261,7 @@ panic 函式以錯誤消息處理器（參見 <a href="#2.3">&sect;2.3</a>）的
 
 
 <p>
-在 C 函式內部，你可以通過調用 <a href="#lua_error"><code>lua_error</code></a>
+在 C 函式內部，你可以通過呼叫 <a href="#lua_error"><code>lua_error</code></a>
 來拋出錯誤。
 
 
@@ -2275,15 +2272,15 @@ panic 函式以錯誤消息處理器（參見 <a href="#2.3">&sect;2.3</a>）的
 
 <p>
 Lua 內部使用 C 的 <code>longjmp</code> 機制讓出一個協程。
-因此，如果一個 C 函式 <code>foo</code> 調用了一個 API 函式，
-而這個 API 函式讓出了（直接或間接調用了讓出函式）。
+因此，如果一個 C 函式 <code>foo</code> 呼叫了一個 API 函式，
+而這個 API 函式讓出了（直接或間接呼叫了讓出函式）。
 由於 <code>longjmp</code> 會移除 C 堆疊的堆疊幀，
 Lua 就無法返回到 <code>foo</code> 裡了。
 
 
 <p>
 為了迴避這類問題，
-碰到 API 調用中調用讓出時，除了那些拋出錯誤的 API 外，還提供了三個函式：
+碰到 API 呼叫中呼叫讓出時，除了那些拋出錯誤的 API 外，還提供了三個函式：
 <a href="#lua_yieldk"><code>lua_yieldk</code></a>，
 <a href="#lua_callk"><code>lua_callk</code></a>，和 <a href="#lua_pcallk"><code>lua_pcallk</code></a> 。
 它們在讓出發生時，可以從傳入的 <em>延續函式</em>
@@ -2292,12 +2289,12 @@ Lua 就無法返回到 <code>foo</code> 裡了。
 
 <p>
 我們需要預設一些術語來解釋延續點。
-對於從 Lua 中調用的 C 函式，我們稱之為 <em>原函式</em>。
-從這個原函式中調用的上面所述的三個 C API 函式我們稱之為 <em>被調函式</em>。
+對於從 Lua 中呼叫的 C 函式，我們稱之為 <em>原函式</em>。
+從這個原函式中呼叫的上面所述的三個 C API 函式我們稱之為 <em>被調函式</em>。
 被調函式可以使當前線程讓出。
 （讓出發生在被調函式是 <a href="#lua_yieldk"><code>lua_yieldk</code></a>，
 或傳入 <a href="#lua_callk"><code>lua_callk</code></a> 或
-<a href="#lua_pcallk"><code>lua_pcallk</code></a> 的函式調用了讓出時。）
+<a href="#lua_pcallk"><code>lua_pcallk</code></a> 的函式呼叫了讓出時。）
 
 
 <p>
@@ -2305,7 +2302,7 @@ Lua 就無法返回到 <code>foo</code> 裡了。
 當再次延續這條線程，它希望繼續被調函式的運行。
 然而，被調函式不可能返回到原函式中。
 這是因為之前的讓出操作破壞了 C 堆疊的堆疊幀。
-作為替代品，Lua 調用那個作為被調函式參數給出的 <em>延續函式</em> 。
+作為替代品，Lua 呼叫那個作為被調函式參數給出的 <em>延續函式</em> 。
 正如其名，延續函式將延續原函式的任務。
 
 
@@ -2337,12 +2334,12 @@ Lua 就無法返回到 <code>foo</code> 裡了。
 上面的代碼中，新函式 <code>k</code>
 就是一個 <em>延續函式</em>
 （函式型別為 <a href="#lua_KFunction"><code>lua_KFunction</code></a>）。
-它的工作就是原函式中調用 <a href="#lua_pcall"><code>lua_pcall</code></a>
+它的工作就是原函式中呼叫 <a href="#lua_pcall"><code>lua_pcall</code></a>
 之後做的那些事情。
 現在我們必須通知 Lua 說，你必須在被
 <a href="#lua_pcall"><code>lua_pcall</code></a>
 執行的 Lua 代碼發生過中斷（錯誤或讓出）後，
-還得繼續調用 <code>k</code> 。
+還得繼續呼叫 <code>k</code> 。
 所以我們還得繼續改寫這段代碼，把
 <a href="#lua_pcall"><code>lua_pcall</code></a> 替換成
 <a href="#lua_pcallk"><code>lua_pcallk</code></a>：
@@ -2354,18 +2351,18 @@ Lua 就無法返回到 <code>foo</code> 裡了。
        return k(L, lua_pcallk(L, n, m, h, ctx2, k), ctx1);
      }
 </pre><p>
-注意這裡那個額外的顯式的對延續函式的調用：
-Lua 僅在需要時，這可能是由錯誤導致的也可能是發生了讓出而需要繼續運行，才會調用延續函式。
-如果沒有發生過任何讓出，調用的函式正常返回，
+注意這裡那個額外的顯式的對延續函式的呼叫：
+Lua 僅在需要時，這可能是由錯誤導致的也可能是發生了讓出而需要繼續運行，才會呼叫延續函式。
+如果沒有發生過任何讓出，呼叫的函式正常返回，
 那麼 <a href="#lua_pcallk"><code>lua_pcallk</code></a>
 （以及 <a href="#lua_callk"><code>lua_callk</code></a>）也會正常返回。
-（當然，這個例子中你也可以不在之後調用延續函式，
-而是在原函式的調用後直接寫上需要做的工作。）
+（當然，這個例子中你也可以不在之後呼叫延續函式，
+而是在原函式的呼叫後直接寫上需要做的工作。）
 
 
 <p>
 除了 Lua 狀態，延續函式還有兩個參數：
-一個是調用最後的狀態碼，另一個一開始由
+一個是呼叫最後的狀態碼，另一個一開始由
 <a href="#lua_pcallk"><code>lua_pcallk</code></a> 傳入的上下文
 （<code>ctx</code>）。
 （Lua 本身不使用這個值；它僅僅從原函式轉發這個值給延續函式。）
@@ -2376,15 +2373,15 @@ Lua 僅在需要時，這可能是由錯誤導致的也可能是發生了讓出�
 <a href="#pdf-LUA_OK"><code>LUA_OK</code></a>）。
 對於 <a href="#lua_yieldk"><code>lua_yieldk</code></a> 和
 <a href="#lua_callk"><code>lua_callk</code></a> 而言，
-調用延續函式傳入的狀態碼一定是
+呼叫延續函式傳入的狀態碼一定是
 <a href="#pdf-LUA_YIELD"><code>LUA_YIELD</code></a>。
-（對這兩個函式，Lua 不會因任何錯誤而調用延續函式。
+（對這兩個函式，Lua 不會因任何錯誤而呼叫延續函式。
 因為它們並不處理錯誤。）
 同樣，當你使用 <a href="#lua_callk"><code>lua_callk</code></a> 時，
 你應該用 <a href="#pdf-LUA_OK"><code>LUA_OK</code></a>
-作為狀態碼來調用延續函式。
+作為狀態碼來呼叫延續函式。
 （對於 <a href="#lua_yieldk"><code>lua_yieldk</code></a>，
-幾乎沒有什麼地方需要直接調用延續函式，
+幾乎沒有什麼地方需要直接呼叫延續函式，
 因為 <a href="#lua_yieldk"><code>lua_yieldk</code></a> 本身並不會返回。）
 
 
@@ -2393,8 +2390,8 @@ Lua 會把延續函式看作原函式。
 延續函式將接收到和原函式相同的 Lua 堆疊，其接收到的 lua 狀態也和
 被調函式若返回後應該有的狀態一致。
 （例如，
-<a href="#lua_callk"><code>lua_callk</code></a> 調用之後，
-堆疊中之前壓入的函式和調用參數都被調用產生的返回值所替代。）
+<a href="#lua_callk"><code>lua_callk</code></a> 呼叫之後，
+堆疊中之前壓入的函式和呼叫參數都被呼叫產生的返回值所替代。）
 這時也有相同的上值。
 等到它返回的時候，Lua 會將其看待成原函式的返回去操作。
 
@@ -2570,27 +2567,27 @@ Lua 假定在 <code>osize &gt;= nsize</code> 成立的條件下，
 <pre>void lua_call (lua_State *L, int nargs, int nresults);</pre>
 
 <p>
-調用一個函式。
+呼叫一個函式。
 
 
 <p>
-要調用一個函式請遵循以下協議：
-首先，要調用的函式應該被壓入堆疊；
+要呼叫一個函式請遵循以下協議：
+首先，要呼叫的函式應該被壓入堆疊；
 接著，把需要傳遞給這個函式的參數按正序壓堆疊；
 這是指第一個參數首先壓堆疊。
-最後調用一下 <a href="#lua_call"><code>lua_call</code></a>；
+最後呼叫一下 <a href="#lua_call"><code>lua_call</code></a>；
 <code>nargs</code> 是你壓入堆疊的參數個數。
-當函式調用完畢後，所有的參數以及函式本身都會出堆疊。
+當函式呼叫完畢後，所有的參數以及函式本身都會出堆疊。
 而函式的返回值這時則被壓堆疊。
 返回值的個數將被調整為 <code>nresults</code> 個，
 除非 <code>nresults</code> 被設置成 <a name="pdf-LUA_MULTRET"><code>LUA_MULTRET</code></a>。
 在這種情況下，所有的返回值都被壓入堆堆疊中。 
 Lua 會保證返回值都放入堆疊空間中。
 函式返回值將按正序壓堆疊（第一個返回值首先壓堆疊），
-因此在調用結束後，最後一個返回值將被放在堆疊頂。
+因此在呼叫結束後，最後一個返回值將被放在堆疊頂。
 
 <p>
-被調用函式內發生的錯誤將（通過 <code>longjmp</code> ）一直上拋。
+被呼叫函式內發生的錯誤將（通過 <code>longjmp</code> ）一直上拋。
 
 <p>
 下面的例子中，這行 Lua 代碼等價於在宿主程序中用 C 代碼做一些工作：
@@ -2627,7 +2624,7 @@ Lua 會保證返回值都放入堆疊空間中。
 
 <p>
 這個函式的行為和 <a href="#lua_call"><code>lua_call</code></a>
-完全一致，只不過它還允許被調用的函式讓出
+完全一致，只不過它還允許被呼叫的函式讓出
 （參見 <a href="#4.7">&sect;4.7</a>）。
 
 
@@ -2655,7 +2652,7 @@ C 函式通過 Lua 中的堆疊來接受參數，
 C 函式只需要把它們以正序壓到堆堆疊上（第一個返回值最先壓入），
 然後返回這些返回值的個數。
 在這些返回值之下的，堆堆疊上的東西都會被 Lua 丟掉。
-和 Lua 函式一樣，從 Lua 中調用 C 函式也可以有很多返回值。
+和 Lua 函式一樣，從 Lua 中呼叫 C 函式也可以有很多返回值。
 
 <p>
 下面這個例子中的函式將接收若干數字參數，並返回它們的平均數與和：
@@ -2702,9 +2699,9 @@ C 函式只需要把它們以正序壓到堆堆疊上（第一個返回值最先
 
 <p>
 銷毀指定 Lua 狀態機中的所有對象
-（如果有垃圾收集相關的元方法的話，會調用它們），
+（如果有垃圾收集相關的元方法的話，會呼叫它們），
 並且釋放狀態機中使用的所有動態記憶體。
-在一些平台上，你可以不必調用這個函式， 
+在一些平台上，你可以不必呼叫這個函式， 
 因為當宿主程序結束的時候，所有的資源就自然被釋放掉了。
 另一方面，長期運行的程序，比如一個後台程序或是一個網站服務器，
 會創建出多個 Lua 狀態機。那麼就應該在不需要時趕緊關閉它們。
@@ -2793,7 +2790,7 @@ Lua 會使用這些建議來預分配這張新表。
 加載的結果就相當於原來的函式。
 當它在產生代碼塊的時候，
 <a href="#lua_dump"><code>lua_dump</code></a>
-通過調用函式 <code>writer</code>
+通過呼叫函式 <code>writer</code>
 （參見 <a href="#lua_Writer"><code>lua_Writer</code></a> ）
 來寫入數據，後面的 <code>data</code> 參數會被傳入 <code>writer</code> 。
 
@@ -3030,7 +3027,7 @@ Lua 把設置記憶體分配函式時設置的那個指針置入 <code>*ud</code
 <p>
 把堆疊頂元素移動到指定的有效索引處，
 依次移動這個索引之上的元素。
-不要用偽索引來調用這個函式，
+不要用偽索引來呼叫這個函式，
 因為偽索引沒有真正指向堆疊上的位置。
 
 
@@ -3307,7 +3304,7 @@ Lua 定義了兩個常量：
 如果無法創建線程或狀態機（由於記憶體有限）則返回 <code>NULL</code>。
 參數 <code>f</code> 是一個分配器函式； 
 Lua 將通過這個函式做狀態機內所有的記憶體分配操作。
-第二個參數 <code>ud</code> ，這個指針將在每次調用分配器時被轉入。
+第二個參數 <code>ud</code> ，這個指針將在每次呼叫分配器時被轉入。
 
 
 
@@ -3383,10 +3380,10 @@ Lua 將通過這個函式做狀態機內所有的記憶體分配操作。
 
 <p>
 在遍歷一張表的時候，
-不要直接對鍵調用 <a href="#lua_tolstring"><code>lua_tolstring</code></a> ，
+不要直接對鍵呼叫 <a href="#lua_tolstring"><code>lua_tolstring</code></a> ，
 除非你知道這個鍵一定是一個字串。
-調用 <a href="#lua_tolstring"><code>lua_tolstring</code></a> 有可能改變給定索引位置的值；
-這會對下一次調用 <a href="#lua_next"><code>lua_next</code></a> 造成影響。
+呼叫 <a href="#lua_tolstring"><code>lua_tolstring</code></a> 有可能改變給定索引位置的值；
+這會對下一次呼叫 <a href="#lua_next"><code>lua_next</code></a> 造成影響。
 
 
 <p>
@@ -3413,15 +3410,15 @@ Lua 中數字的型別。缺省是 double ，但是你可以改成 float 。
 
 <p>
 將一個 Lua 浮點數轉換為一個 Lua 整數。
-這個宏假設 <code>n</code> 有對應的整數值。
+這個巨集假設 <code>n</code> 有對應的整數值。
 如果該值在 Lua 整數可表示範圍內，
 就將其轉換為一個整數賦給 <code>*p</code>。
-宏的結果是一個布爾量，表示轉換是否成功。
-（注意、由於圓整關係，這個範圍測試不用此宏很難做對。）
+巨集的結果是一個布爾量，表示轉換是否成功。
+（注意、由於圓整關係，這個範圍測試不用此巨集很難做對。）
 
 
 <p>
-該宏有可能對其參數做多次取值。
+該巨集有可能對其參數做多次取值。
 
 
 
@@ -3431,12 +3428,12 @@ Lua 中數字的型別。缺省是 double ，但是你可以改成 float 。
 <pre>int lua_pcall (lua_State *L, int nargs, int nresults, int msgh);</pre>
 
 <p>
-以保護模式調用一個函式。
+以保護模式呼叫一個函式。
 
 
 <p>
 <code>nargs</code> 和 <code>nresults</code> 的含義與 <a href="#lua_call"><code>lua_call</code></a> 中的相同。
-如果在調用過程中沒有發生錯誤，
+如果在呼叫過程中沒有發生錯誤，
 <a href="#lua_pcall"><code>lua_pcall</code></a> 的行為和 <a href="#lua_call"><code>lua_call</code></a> 完全一致。 
 但是，如果有錯誤發生的話，
 <a href="#lua_pcall"><code>lua_pcall</code></a> 會捕獲它，
@@ -3451,7 +3448,7 @@ Lua 中數字的型別。缺省是 double ，但是你可以改成 float 。
 否則， <code>msgh</code> 就被當成是 <em>錯誤處理函式</em> 在堆疊上的索引位置。 
 （在當前的實現裡，這個索引不能是偽索引。）
 在發生運行時錯誤時，
-這個函式會被調用而參數就是錯誤消息。
+這個函式會被呼叫而參數就是錯誤消息。
 錯誤處理函式的返回值將被 <a href="#lua_pcall"><code>lua_pcall</code></a>
 作為錯誤消息返回在堆堆疊上。
 
@@ -3475,7 +3472,7 @@ Lua 中數字的型別。缺省是 double ，但是你可以改成 float 。
 </li>
 
 <li><b><a name="pdf-LUA_ERRMEM"><code>LUA_ERRMEM</code></a>: </b>
-記憶體分配錯誤。對於這種錯，Lua 不會調用錯誤處理函式。
+記憶體分配錯誤。對於這種錯，Lua 不會呼叫錯誤處理函式。
 </li>
 
 <li><b><a name="pdf-LUA_ERRERR"><code>LUA_ERRERR</code></a>: </b>
@@ -3484,7 +3481,7 @@ Lua 中數字的型別。缺省是 double ，但是你可以改成 float 。
 
 <li><b><a name="pdf-LUA_ERRGCMM"><code>LUA_ERRGCMM</code></a>: </b>
 在運行 <code>__gc</code> 元方法時發生的錯誤。
-（這個錯誤和被調用的函式無關。）
+（這個錯誤和被呼叫的函式無關。）
 </li>
 
 </ul>
@@ -3503,7 +3500,7 @@ Lua 中數字的型別。缺省是 double ，但是你可以改成 float 。
 
 <p>
 這個函式的行為和 <a href="#lua_pcall"><code>lua_pcall</code></a>
-完全一致，只不過它還允許被調用的函式讓出
+完全一致，只不過它還允許被呼叫的函式讓出
 （參見 <a href="#4.7">&sect;4.7</a>）。
 
 
@@ -3539,10 +3536,10 @@ Lua 中數字的型別。缺省是 double ，但是你可以改成 float 。
 當創建了一個 C 函式後，
 你可以給它關聯一些值，
 這就是在創建一個 C Closure（參見 <a href="#4.4">&sect;4.4</a>）；
-接下來無論函式何時被調用，這些值都可以被這個函式訪問到。
+接下來無論函式何時被呼叫，這些值都可以被這個函式訪問到。
 為了將一些值關聯到一個 C 函式上，
 首先這些值需要先被壓入堆堆疊（如果有多個值，第一個先壓）。
-接下來調用 <a href="#lua_pushcclosure"><code>lua_pushcclosure</code></a>
+接下來呼叫 <a href="#lua_pushcclosure"><code>lua_pushcclosure</code></a>
 來創建出 Closure 並把這個 C 函式壓到堆疊上。
 參數 <code>n</code> 告之函式有多少個值需要關聯到函式上。
 <a href="#lua_pushcclosure"><code>lua_pushcclosure</code></a> 也會把這些值從堆疊上彈出。
@@ -3568,7 +3565,7 @@ Lua 中數字的型別。缺省是 double ，但是你可以改成 float 。
 將一個 C 函式壓堆疊。 
 這個函式接收一個 C 函式指針，
 並將一個型別為 <code>function</code> 的 Lua 值壓堆疊。
-當這個堆疊頂的值被調用時，將觸發對應的 C 函式。
+當這個堆疊頂的值被呼叫時，將觸發對應的 C 函式。
 
 
 <p>
@@ -3577,7 +3574,7 @@ Lua 中數字的型別。缺省是 double ，但是你可以改成 float 。
 
 
 <p>
-<code>lua_pushcfunction</code> 是作為一個宏定義出現的：
+<code>lua_pushcfunction</code> 是作為一個巨集定義出現的：
 
 <pre>
      #define lua_pushcfunction(L,f)  lua_pushcclosure(L,f,0)
@@ -3664,7 +3661,7 @@ Lua 中數字的型別。缺省是 double ，但是你可以改成 float 。
 <pre>const char *lua_pushliteral (lua_State *L, const char *s);</pre>
 
 <p>
-這個宏等價於 <a href="#lua_pushlstring"><code>lua_pushlstring</code></a>，
+這個巨集等價於 <a href="#lua_pushlstring"><code>lua_pushlstring</code></a>，
 區別僅在於只能在 <code>s</code> 是一個字面量時才能用它。
 它會自動給出字串的長度。
 
@@ -3769,7 +3766,7 @@ Lua 對這個字串做一個內部副本（或是復用一個副本），
 
 <p>
 如果索引 <code>index1</code> 與索引 <code>index2</code> 處的值
-本身相等（即不調用元方法），返回 1 。
+本身相等（即不呼叫元方法），返回 1 。
 否則返回 0 。
 當任何一個索引無效時，也返回 0 。
 
@@ -3889,11 +3886,11 @@ Lua 對這個字串做一個內部副本（或是復用一個副本），
 <p>
 <a href="#lua_load"><code>lua_load</code></a> 用到的讀取器函式，
 每次它需要一塊新的代碼塊的時候，
-<a href="#lua_load"><code>lua_load</code></a> 就調用讀取器，
+<a href="#lua_load"><code>lua_load</code></a> 就呼叫讀取器，
 每次都會傳入一個參數 <code>data</code> 。
 讀取器需要返回含有新的代碼塊的一塊記憶體的指針，
 並把 <code>size</code> 設為這塊記憶體的大小。
-記憶體塊必須在下一次函式被調用之前一直存在。
+記憶體塊必須在下一次函式被呼叫之前一直存在。
 讀取器可以通過返回 <code>NULL</code> 或設 <code>size</code> 為 0 來指示代碼塊結束。
 讀取器可能返回多個塊，每個塊可以有任意的大於零的尺寸。
 
@@ -3906,7 +3903,7 @@ Lua 對這個字串做一個內部副本（或是復用一個副本），
 
 <p>
 把 C 函式 <code>f</code> 設到全局變量 <code>name</code> 中。
-它通過一個宏定義：
+它通過一個巨集定義：
 
 <pre>
      #define lua_register(L,n,f) \
@@ -3923,7 +3920,7 @@ Lua 對這個字串做一個內部副本（或是復用一個副本），
 <p>
 從給定有效索引處移除一個元素，
 把這個索引之上的所有元素移下來填補上這個空隙。
-不能用偽索引來調用這個函式，因為偽索引並不指向真實的堆疊上的位置。
+不能用偽索引來呼叫這個函式，因為偽索引並不指向真實的堆疊上的位置。
 
 
 
@@ -3949,9 +3946,9 @@ Lua 對這個字串做一個內部副本（或是復用一個副本），
 <p>
 要啟動一個協程的話，
 你需要把主函式以及它需要的參數壓入線程堆疊；
-然後調用 <a href="#lua_resume"><code>lua_resume</code></a> ，
+然後呼叫 <a href="#lua_resume"><code>lua_resume</code></a> ，
 把 <code>nargs</code> 設為參數的個數。
-這次調用會在協程掛起時或是結束運行後返回。
+這次呼叫會在協程掛起時或是結束運行後返回。
 當函式返回時，堆堆疊中會有傳給 <a href="#lua_yield"><code>lua_yield</code></a> 的所有值，
 或是主函式的所有返回值。
 當協程讓出， <a href="#lua_resume"><code>lua_resume</code></a>
@@ -3971,7 +3968,7 @@ Lua 對這個字串做一個內部副本（或是復用一個副本），
 要延續一個協程，
 你需要清除上次 <a href="#lua_yield"><code>lua_yield</code></a> 遺留下的所有結果，
 你把需要傳給 <code>yield</code> 作結果的值壓堆疊，
-然後調用 <a href="#lua_resume"><code>lua_resume</code></a> 。
+然後呼叫 <a href="#lua_resume"><code>lua_resume</code></a> 。
 
 <p>
 參數 <code>from</code> 表示協程從哪個協程中來延續 <code>L</code> 的。
@@ -4137,7 +4134,7 @@ Lua 庫是完全可重入的：
 
 
 <p>
-你只能在狀態為 <a href="#pdf-LUA_OK"><code>LUA_OK</code></a> 的線程中調用函式。
+你只能在狀態為 <a href="#pdf-LUA_OK"><code>LUA_OK</code></a> 的線程中呼叫函式。
 你可以延續一個狀態為 <a href="#pdf-LUA_OK"><code>LUA_OK</code></a> 的線程
 （用於開始新協程）或是狀態為 <a href="#pdf-LUA_YIELD"><code>LUA_YIELD</code></a> 的線程
 （用於延續協程）。
@@ -4195,7 +4192,7 @@ Lua 庫是完全可重入的：
 <pre>lua_Integer lua_tointeger (lua_State *L, int index);</pre>
 
 <p>
-等價於調用 <a href="#lua_tointegerx"><code>lua_tointegerx</code></a>，
+等價於呼叫 <a href="#lua_tointegerx"><code>lua_tointegerx</code></a>，
 其參數 <code>isnum</code> 為 <code>NULL</code>。
 
 
@@ -4255,7 +4252,7 @@ Lua 庫是完全可重入的：
 <pre>lua_Number lua_tonumber (lua_State *L, int index);</pre>
 
 <p>
-等價於調用 <a href="#lua_tonumberx"><code>lua_tonumberx</code></a>，
+等價於呼叫 <a href="#lua_tonumberx"><code>lua_tonumberx</code></a>，
 其參數 <code>isnum</code> 為 <code>NULL</code>。
 
 
@@ -4304,7 +4301,7 @@ Lua 庫是完全可重入的：
 <pre>const char *lua_tostring (lua_State *L, int index);</pre>
 
 <p>
-等價於調用 <a href="#lua_tolstring"><code>lua_tolstring</code></a> ，
+等價於呼叫 <a href="#lua_tolstring"><code>lua_tolstring</code></a> ，
 其參數 <code>len</code> 為 <code>NULL</code> 。
 
 
@@ -4398,10 +4395,10 @@ Lua 庫是完全可重入的：
 
 <p>
 返回保存在 Lua 內核中儲存的版本數字的地址。
-當調用時傳入一個合法的 <a href="#lua_State"><code>lua_State</code></a> ，
+當呼叫時傳入一個合法的 <a href="#lua_State"><code>lua_State</code></a> ，
 返回創建該狀態機時的版本地址。
-如果用 <code>NULL</code> 調用，
-返回調用者的版本地址。
+如果用 <code>NULL</code> 呼叫，
+返回呼叫者的版本地址。
 
 
 
@@ -4415,7 +4412,7 @@ Lua 庫是完全可重入的：
 <p>
 被 <a href="#lua_dump"><code>lua_dump</code></a> 用到的寫入器函式。
 每次 <a href="#lua_dump"><code>lua_dump</code></a> 產生了一段新的代碼塊，
-它都會調用寫入器。
+它都會呼叫寫入器。
 傳入要寫入的緩衝區 (<code>p</code>) 和它的尺寸 (<code>sz</code>) ，
 以及傳給 <a href="#lua_dump"><code>lua_dump</code></a> 的參數 <code>data</code> 。
 
@@ -4424,7 +4421,7 @@ Lua 庫是完全可重入的：
 <p>
 寫入器會返回一個錯誤碼：
 0 表示沒有錯誤； 別的值均表示一個錯誤，
-並且會讓 <a href="#lua_dump"><code>lua_dump</code></a> 停止再次調用寫入器。
+並且會讓 <a href="#lua_dump"><code>lua_dump</code></a> 停止再次呼叫寫入器。
 
 
 
@@ -4450,9 +4447,9 @@ Lua 庫是完全可重入的：
 <pre>int lua_yield (lua_State *L, int nresults);</pre>
 
 <p>
-這個函式等價於調用 <a href="#lua_yieldk"><code>lua_yieldk</code></a>，
+這個函式等價於呼叫 <a href="#lua_yieldk"><code>lua_yieldk</code></a>，
 不同的是不提供延續函式（參見 <a href="#4.7">&sect;4.7</a>）。
-因此，當線程被延續，線程會繼續運行調用 <code>lua_yield</code> 函式的函式。
+因此，當線程被延續，線程會繼續運行呼叫 <code>lua_yield</code> 函式的函式。
 
 
 
@@ -4469,16 +4466,16 @@ Lua 庫是完全可重入的：
 
 
 <p>
-當 C 函式調用了 <a href="#lua_yieldk"><code>lua_yieldk</code></a>，
+當 C 函式呼叫了 <a href="#lua_yieldk"><code>lua_yieldk</code></a>，
 當前運行的協程會掛起，
-啟動這個線程的 <a href="#lua_resume"><code>lua_resume</code></a> 調用返回。
+啟動這個線程的 <a href="#lua_resume"><code>lua_resume</code></a> 呼叫返回。
 參數 <code>nresults</code> 指堆疊上需返回給
 <a href="#lua_resume"><code>lua_resume</code></a> 的返回值的個數。
 
 
 <p>
 當協程再次被延續時，
-Lua 調用延續函式 <code>k</code> 繼續運行被掛起（參見 <a href="#4.7">&sect;4.7</a>）的 C 函式。
+Lua 呼叫延續函式 <code>k</code> 繼續運行被掛起（參見 <a href="#4.7">&sect;4.7</a>）的 C 函式。
 延續函式會從前一個函式中接收到相同的堆疊，
 堆疊中的 <code>n</code> 個返回值被移除而壓入了從
 <a href="#lua_resume"><code>lua_resume</code></a> 傳入的參數。
@@ -4491,16 +4488,16 @@ Lua 調用延續函式 <code>k</code> 繼續運行被掛起（參見 <a href="#4
 當協程一次次延續，將從延續函式繼續運行。
 然而，有一個例外：
 當這個函式從一個逐行運行的鉤子函式（參見 <a href="#4.9">&sect;4.9</a>）
-中調用時，<code>lua_yieldk</code> 不可以提供延續函式。
+中呼叫時，<code>lua_yieldk</code> 不可以提供延續函式。
 （也就是類似 <a href="#lua_yield"><code>lua_yield</code></a> 的形式），
-而此時，鉤子函式在調用完讓出後將立刻返回。
+而此時，鉤子函式在呼叫完讓出後將立刻返回。
 Lua 會使協程讓出，一旦協程再次被延續，
 觸發鉤子的函式會繼續正常運行。
 
 
 <p>
-當一個線程處於未提供延續函式的 C 調用中，調用它會拋出一個錯誤。
-從並非用延續方式（例如：主線程）啟動的線程中調用它也會這樣。
+當一個線程處於未提供延續函式的 C 呼叫中，呼叫它會拋出一個錯誤。
+從並非用延續方式（例如：主線程）啟動的線程中呼叫它也會這樣。
 
 
 
@@ -4537,7 +4534,7 @@ Lua 沒有內置的調試機制。
 <p>
 這是一個攜帶有有關函式或活動記錄的各種信息的結構。
 <a href="#lua_getstack"><code>lua_getstack</code></a> 只會填充結構的私有部分供後面使用。
-調用 <a href="#lua_getinfo"><code>lua_getinfo</code></a> 可以在
+呼叫 <a href="#lua_getinfo"><code>lua_getinfo</code></a> 可以在
 <a href="#lua_Debug"><code>lua_Debug</code></a> 中填充那些可被使用的信息域。
 
 
@@ -4585,7 +4582,7 @@ Lua 沒有內置的調試機制。
 所以它們沒有固定的名字：
 一些函式可能是全局復合變量的值，
 另一些可能僅僅只是被保存在一張表的某個域中。
-<code>lua_getinfo</code> 函式會檢查函式是怎樣被調用的，
+<code>lua_getinfo</code> 函式會檢查函式是怎樣被呼叫的，
 以此來找到一個適合的名字。 
 如果它找不到名字，
 <code>name</code> 就被設置為 <code>NULL</code> 。
@@ -4595,13 +4592,13 @@ Lua 沒有內置的調試機制。
 用於解釋 <code>name</code> 域。
 <code>namewhat</code> 的值可以是
 <code>"global"</code>, <code>"local"</code>, <code>"method"</code>, <code>"field"</code>, <code>"upvalue"</code>, 或是 <code>""</code> （空串）。
-這取決於函式怎樣被調用。
+這取決於函式怎樣被呼叫。
 （Lua 用空串表示其它選項都不符合。）
 </li>
 
 <li><b><code>istailcall</code>: </b>
-如果函式以尾調用形式調用，這個值就為真。
-在這種情況下，當層的調用者不在堆疊中。
+如果函式以尾呼叫形式呼叫，這個值就為真。
+在這種情況下，當層的呼叫者不在堆疊中。
 </li>
 
 <li><b><code>nups</code>: </b>
@@ -4660,13 +4657,13 @@ Lua 沒有內置的調試機制。
 <pre>int lua_getinfo (lua_State *L, const char *what, lua_Debug *ar);</pre>
 
 <p>
-返回一個指定的函式或函式調用的信息。
+返回一個指定的函式或函式呼叫的信息。
 
 
 <p>
-當用於取得一次函式調用的信息時，
+當用於取得一次函式呼叫的信息時，
 參數 <code>ar</code> 必須是一個有效的活動的記錄。
-這條記錄可以是前一次調用 <a href="#lua_getstack"><code>lua_getstack</code></a> 得到的，
+這條記錄可以是前一次呼叫 <a href="#lua_getstack"><code>lua_getstack</code></a> 得到的，
 或是一個鉤子 （參見 <a href="#lua_Hook"><code>lua_Hook</code></a> ）得到的參數。
 
 
@@ -4740,7 +4737,7 @@ Lua 沒有內置的調試機制。
 <p>
 對於第一種情況，
 參數 <code>ar</code> 必須是一個有效的活動的記錄。 
-這條記錄可以是前一次調用 <a href="#lua_getstack"><code>lua_getstack</code></a> 得到的，
+這條記錄可以是前一次呼叫 <a href="#lua_getstack"><code>lua_getstack</code></a> 得到的，
 或是一個鉤子 （參見 <a href="#lua_Hook"><code>lua_Hook</code></a> ）的參數。
 索引 <code>n</code> 用於選擇要檢閱哪個局部變量；
 參見 <a href="#pdf-debug.getlocal"><code>debug.getlocal</code></a> 
@@ -4778,11 +4775,11 @@ Lua 沒有內置的調試機制。
 這個函式用正在運行中的指定層次處函式的 <em>活動記錄</em> 來填寫
 <a href="#lua_Debug"><code>lua_Debug</code></a> 結構的一部分。
 0 層表示當前運行的函式，
-<em>n+1</em> 層的函式就是調用第 <em>n</em> 層
-（尾調用例外，它不算在堆疊層次中）
+<em>n+1</em> 層的函式就是呼叫第 <em>n</em> 層
+（尾呼叫例外，它不算在堆疊層次中）
 函式的那一個。
 如果沒有錯誤， <a href="#lua_getstack"><code>lua_getstack</code></a> 返回 1 ；
-當調用傳入的層次大於堆堆疊深度的時候，返回 0 。
+當呼叫傳入的層次大於堆堆疊深度的時候，返回 0 。
 
 
 
@@ -4818,7 +4815,7 @@ Lua 沒有內置的調試機制。
 
 
 <p>
-無論何時鉤子被調用，它的參數 <code>ar</code> 
+無論何時鉤子被呼叫，它的參數 <code>ar</code> 
 中的 <code>event</code> 域都被設為觸發鉤子的事件。
 Lua 把這些事件定義為以下常量：
 <a name="pdf-LUA_HOOKCALL"><code>LUA_HOOKCALL</code></a>，<a name="pdf-LUA_HOOKRET"><code>LUA_HOOKRET</code></a>，
@@ -4826,24 +4823,24 @@ Lua 把這些事件定義為以下常量：
 <a name="pdf-LUA_HOOKCOUNT"><code>LUA_HOOKCOUNT</code></a>。
 除此之外，對於 line 事件， <code>currentline</code> 域也被設置。
 要想獲得 <code>ar</code> 中的其他域，
-鉤子必須調用 <a href="#lua_getinfo"><code>lua_getinfo</code></a> 。
+鉤子必須呼叫 <a href="#lua_getinfo"><code>lua_getinfo</code></a> 。
 
 <p>
 對於 call 事件，<code>event</code> 可以是 <code>LUA_HOOKCALL</code> 這個通常值，
-或是 <code>LUA_HOOKTAILCALL</code> 表示尾調用；
+或是 <code>LUA_HOOKTAILCALL</code> 表示尾呼叫；
 後一種情況，沒有對應的返回事件。
 
 
 <p>
 當 Lua 運行在一個鉤子內部時，
-它將屏蔽掉其它對鉤子的調用。
+它將屏蔽掉其它對鉤子的呼叫。
 也就是說，如果一個鉤子函式內再調回 Lua 來執行一個函式或是一個代碼塊 ，
 這個執行操作不會觸發任何的鉤子。
 
 
 <p>
 鉤子函式不能有延續點，
-即不能用一個非空的 <code>k</code> 調用
+即不能用一個非空的 <code>k</code> 呼叫
 <a href="#lua_yieldk"><code>lua_yieldk</code></a>，
 <a href="#lua_pcallk"><code>lua_pcallk</code></a>，或 <a href="#lua_callk"><code>lua_callk</code></a>。
 
@@ -4865,37 +4862,37 @@ Lua 把這些事件定義為以下常量：
 
 <p>
 參數 <code>f</code> 是鉤子函式。
-<code>mask</code> 指定在哪些事件時會調用：
+<code>mask</code> 指定在哪些事件時會呼叫：
 它由下列一組位常量構成
 <a name="pdf-LUA_MASKCALL"><code>LUA_MASKCALL</code></a>，
 <a name="pdf-LUA_MASKRET"><code>LUA_MASKRET</code></a>，
 <a name="pdf-LUA_MASKLINE"><code>LUA_MASKLINE</code></a>，
 <a name="pdf-LUA_MASKCOUNT"><code>LUA_MASKCOUNT</code></a>。
 參數 <code>count</code> 只在掩碼中包含有 <code>LUA_MASKCOUNT</code> 才有意義。
-對於每個事件，鉤子被調用的情況解釋如下：
+對於每個事件，鉤子被呼叫的情況解釋如下：
 
 <ul>
 
 <li><b>call hook: </b>
-在解釋器調用一個函式時被調用。
+在解釋器呼叫一個函式時被呼叫。
 鉤子將於 Lua 進入一個新函式後，
-函式獲取參數前被調用。
+函式獲取參數前被呼叫。
 </li>
 
 <li><b>return hook: </b>
-在解釋器從一個函式中返回時調用。
-鉤子將於 Lua 離開函式之前的那一刻被調用。
+在解釋器從一個函式中返回時呼叫。
+鉤子將於 Lua 離開函式之前的那一刻被呼叫。
 沒有標準方法來訪問被函式返回的那些值。
 </li>
 
 <li><b>line hook: </b>
 在解釋器準備開始執行新的一行代碼時，
-或是跳轉到這行代碼中時（即使在同一行內跳轉）被調用。
+或是跳轉到這行代碼中時（即使在同一行內跳轉）被呼叫。
 （這個事件僅僅在 Lua 執行一個 Lua 函式時發生。）
 </li>
 
 <li><b>count hook: </b>
-在解釋器每執行 <code>count</code> 條指令後被調用。
+在解釋器每執行 <code>count</code> 條指令後被呼叫。
 （這個事件僅僅在 Lua 執行一個 Lua 函式時發生。）
 </li>
 
@@ -5106,7 +5103,7 @@ Lua 把這些事件定義為以下常量：
 <pre>int luaL_argerror (lua_State *L, int arg, const char *extramsg);</pre>
 
 <p>
-拋出一個錯誤報告調用的 C 函式的第 <code>arg</code> 個參數的問題。
+拋出一個錯誤報告呼叫的 C 函式的第 <code>arg</code> 個參數的問題。
 它使用下列標準信息並包含了一段 <code>extramsg</code> 作為註解：
 
 <pre>
@@ -5133,15 +5130,15 @@ Lua 把這些事件定義為以下常量：
 
 <li>首先定義一個型別為 <a href="#luaL_Buffer"><code>luaL_Buffer</code></a> 的變量 <code>b</code>。</li>
 
-<li>調用 <code>luaL_buffinit(L, &amp;b)</code> 初始化它。</li>
+<li>呼叫 <code>luaL_buffinit(L, &amp;b)</code> 初始化它。</li>
 
 <li>
-然後調用 <code>luaL_add*</code> 這組函式向其添加字串片斷。
+然後呼叫 <code>luaL_add*</code> 這組函式向其添加字串片斷。
 </li>
 
 <li>
-最後調用 <code>luaL_pushresult(&amp;b)</code> 。
-最後這次調用會在堆疊頂留下最終的字串。
+最後呼叫 <code>luaL_pushresult(&amp;b)</code> 。
+最後這次呼叫會在堆疊頂留下最終的字串。
 </li>
 
 </ul>
@@ -5154,12 +5151,12 @@ Lua 把這些事件定義為以下常量：
 
 <li>首先定義一個型別為 <a href="#luaL_Buffer"><code>luaL_Buffer</code></a> 的變量 <code>b</code>。</li>
 
-<li>然後調用 <code>luaL_buffinitsize(L, &amp;b, sz)</code> 預分配 <code>sz</code> 大小的空間。</li>
+<li>然後呼叫 <code>luaL_buffinitsize(L, &amp;b, sz)</code> 預分配 <code>sz</code> 大小的空間。</li>
 
 <li>接著將字串複製入這個空間。</li>
 
 <li>
-最後調用 <code>luaL_pushresultsize(&amp;b, sz)</code>，
+最後呼叫 <code>luaL_pushresultsize(&amp;b, sz)</code>，
 這裡的 <code>sz</code> 指已經複製到緩存內的字串長度。
 </li>
 
@@ -5168,10 +5165,10 @@ Lua 把這些事件定義為以下常量：
 <p>
 一般的操作過程中，字串緩存會使用不定量的堆疊槽。
 因此，在使用緩存中，你不能假定目前堆疊頂在哪。
-在對緩存操作的函式調用間，你都可以使用堆疊，只需要保證堆疊平衡即可；
-即，在你做一次緩存操作調用時，當時的堆疊位置和上次調用緩存操作後的位置相同。
+在對緩存操作的函式呼叫間，你都可以使用堆疊，只需要保證堆疊平衡即可；
+即，在你做一次緩存操作呼叫時，當時的堆疊位置和上次呼叫緩存操作後的位置相同。
 （對於 <a href="#luaL_addvalue"><code>luaL_addvalue</code></a> 是個唯一的例外。）
-在調用完 <a href="#luaL_pushresult"><code>luaL_pushresult</code></a> 後，
+在呼叫完 <a href="#luaL_pushresult"><code>luaL_pushresult</code></a> 後，
 堆疊會恢復到緩存初始化時的位置上，並在頂部壓入最終的字串。
 
 
@@ -5196,7 +5193,7 @@ Lua 把這些事件定義為以下常量：
 <pre>char *luaL_buffinitsize (lua_State *L, luaL_Buffer *B, size_t sz);</pre>
 
 <p>
-等價於調用序列
+等價於呼叫序列
 <a href="#luaL_buffinit"><code>luaL_buffinit</code></a>，
 <a href="#luaL_prepbuffsize"><code>luaL_prepbuffsize</code></a>。
 
@@ -5209,14 +5206,14 @@ Lua 把這些事件定義為以下常量：
 <pre>int luaL_callmeta (lua_State *L, int obj, const char *e);</pre>
 
 <p>
-調用一個元方法。
+呼叫一個元方法。
 
 
 <p>
 如果在索引 <code>obj</code> 處的對象有元表，
 且元表有域 <code>e</code> 。
-這個函式會以該對像為參數調用這個域。
-這種情況下，函式返回真並將調用返回值壓堆疊。
+這個函式會以該對像為參數呼叫這個域。
+這種情況下，函式返回真並將呼叫返回值壓堆疊。
 如果那個位置沒有元表，或沒有對應的元方法，
 此函式返回假（並不會將任何東西壓堆疊）。
 
@@ -5362,9 +5359,9 @@ Lua 把這些事件定義為以下常量：
 <pre>void luaL_checkversion (lua_State *L);</pre>
 
 <p>
-檢查調用它的內核是否是創建這個 Lua 狀態機的內核。
-以及調用它的代碼是否使用了相同的 Lua 版本。
-同時也檢查調用它的內核與創建該 Lua  狀態機的內核
+檢查呼叫它的內核是否是創建這個 Lua 狀態機的內核。
+以及呼叫它的代碼是否使用了相同的 Lua 版本。
+同時也檢查呼叫它的內核與創建該 Lua  狀態機的內核
 是否使用了同一片地址空間。
 
 
@@ -5376,7 +5373,7 @@ Lua 把這些事件定義為以下常量：
 
 <p>
 加載並運行指定的文件。
-它是用下列宏定義出來：
+它是用下列巨集定義出來：
 
 <pre>
      (luaL_loadfile(L, filename) || lua_pcall(L, 0, LUA_MULTRET, 0))
@@ -5393,7 +5390,7 @@ Lua 把這些事件定義為以下常量：
 
 <p>
 加載並運行指定的字串。
-它是用下列宏定義出來：
+它是用下列巨集定義出來：
 
 <pre>
      (luaL_loadstring(L, str) || lua_pcall(L, 0, LUA_MULTRET, 0))
@@ -5511,7 +5508,7 @@ Lua 把這些事件定義為以下常量：
 
 <p>
 以數字形式返回給定索引處值的「長度」；
-它等價於在 Lua 中調用 '<code>#</code>' 的操作
+它等價於在 Lua 中呼叫 '<code>#</code>' 的操作
 （參見 <a href="#3.4.7">&sect;3.4.7</a>）。
 如果操作結果不是一個整數，則拋出一個錯誤。
 （這種情況只發生在觸發元方法時。）
@@ -5627,7 +5624,7 @@ Lua 把這些事件定義為以下常量：
 
 
 <p>
-它是用下列宏實現的：
+它是用下列巨集實現的：
 
 <pre>
      (luaL_newlibtable(L,l), luaL_setfuncs(L,l,0))
@@ -5651,7 +5648,7 @@ Lua 把這些事件定義為以下常量：
 
 
 <p>
-它以宏形式實現，
+它以巨集形式實現，
 數組 <code>l</code> 必須是一個數組，而不能是一個指針。
 
 
@@ -5684,7 +5681,7 @@ Lua 把這些事件定義為以下常量：
 <p>
 創建一個新的 Lua 狀態機。
 它以一個基於標準 C 的 <code>realloc</code> 函式實現的記憶體分配器
-調用 <a href="#lua_newstate"><code>lua_newstate</code></a> 。
+呼叫 <a href="#lua_newstate"><code>lua_newstate</code></a> 。
 並把可打印一些出錯信息到標準錯誤輸出的 panic 函式（參見 <a href="#4.6">&sect;4.6</a>）
 設置好，用於處理致命錯誤。
 
@@ -5797,7 +5794,7 @@ Lua 把這些事件定義為以下常量：
 返回一段大小為 <code>sz</code> 的空間地址。
 你可以將字串複製其中以加到緩存 <code>B</code> 內
 （參見 <a href="#luaL_Buffer"><code>luaL_Buffer</code></a>）。
-將字串複製其中後，你必須調用 <a href="#luaL_addsize"><code>luaL_addsize</code></a>
+將字串複製其中後，你必須呼叫 <a href="#luaL_addsize"><code>luaL_addsize</code></a>
 傳入字串的大小，才會真正把它加入緩存。
 
 
@@ -5838,7 +5835,7 @@ Lua 把這些事件定義為以下常量：
 此引用是一個唯一的整數鍵。
 只要你不向表 <code>t</code> 手工添加整數鍵，
 <a href="#luaL_ref"><code>luaL_ref</code></a> 可以保證它返回的鍵的唯一性。
-你可以通過調用 <code>lua_rawgeti(L, t, r)</code> 來找回由
+你可以通過呼叫 <code>lua_rawgeti(L, t, r)</code> 來找回由
 <code>r</code> 引用的對象。
 函式 <a href="#luaL_unref"><code>luaL_unref</code></a> 用來釋放一個引用關聯的對象
 
@@ -5876,9 +5873,9 @@ Lua 把這些事件定義為以下常量：
 
 <p>
 如果 <code>modname</code> 不在 <a href="#pdf-package.loaded"><code>package.loaded</code></a> 中，
-則調用函式 <code>openf</code> ，並傳入字串 <code>modname</code>。
+則呼叫函式 <code>openf</code> ，並傳入字串 <code>modname</code>。
 將其返回值置入 <code>package.loaded[modname]</code>。
-這個行為好似該函式通過 <a href="#pdf-require"><code>require</code></a> 調用過一樣。
+這個行為好似該函式通過 <a href="#pdf-require"><code>require</code></a> 呼叫過一樣。
 
 
 <p>
@@ -5904,7 +5901,7 @@ Lua 把這些事件定義為以下常量：
 <p>
 若 <code>nup</code> 不為零，
 所有的函式都共享 <code>nup</code> 個上值。
-這些值必須在調用之前，壓在表之上。
+這些值必須在呼叫之前，壓在表之上。
 這些值在註冊完畢後都會從堆疊彈出。
 
 
@@ -5934,7 +5931,7 @@ Lua 把這些事件定義為以下常量：
 <p>
 文件句柄實現為一個完全用戶數據，
 其元表被稱為 <code>LUA_FILEHANDLE</code>
-（<code>LUA_FILEHANDLE</code> 是一個代表真正元表的名字的宏）。
+（<code>LUA_FILEHANDLE</code> 是一個代表真正元表的名字的巨集）。
 這張元表由標準輸入輸出庫（參見 <a href="#luaL_newmetatable"><code>luaL_newmetatable</code></a>）創建。
 
 
@@ -5943,11 +5940,11 @@ Lua 把這些事件定義為以下常量：
 此結構其後可以包含任何其它數據。
 <code>f</code> 域指向一個 C 數據流
 （如果它為 <code>NULL</code> 表示一個沒有創建好的句柄）。
-<code>closef</code> 域指向一個在關閉或回收該流時需要調用的 Lua 函式。
+<code>closef</code> 域指向一個在關閉或回收該流時需要呼叫的 Lua 函式。
 該函式將收到一個參數，即文件句柄。
 它需要返回 <b>true</b>（操作成功）或
 <b>nil</b> 加錯誤消息（出錯的時候）。
-一旦 Lua 調用過這個域，該域的值就會修改為 <code>NULL</code>
+一旦 Lua 呼叫過這個域，該域的值就會修改為 <code>NULL</code>
 以提示這個句柄已經被關閉了。
 
 
@@ -5978,7 +5975,7 @@ Lua 把這些事件定義為以下常量：
 
 <p>
 如果該值有一個帶 <code>"__tostring"</code> 域的元表，
-<code>luaL_tolstring</code> 會以該值為參數去調用對應的元方法，
+<code>luaL_tolstring</code> 會以該值為參數去呼叫對應的元方法，
 並將其返回值作為結果。
 
 
@@ -6039,7 +6036,7 @@ Lua 把這些事件定義為以下常量：
      <em>chunkname</em>:<em>currentline</em>:
 </pre><p>
 0 層指當前正在運行的函式，
-1 層指調用正在運行函式的函式，
+1 層指呼叫正在運行函式的函式，
 依次類推。
 
 
@@ -6096,7 +6093,7 @@ Lua 把這些事件定義為以下常量：
 
 <p>
 要使用這些庫，
-C 的宿主程序需要先調用一下
+C 的宿主程序需要先呼叫一下
 <a href="#luaL_openlibs"><code>luaL_openlibs</code></a> 這個函式，
 這樣就能打開所有的標準庫。
 或者宿主程序也可以用
@@ -6128,7 +6125,7 @@ C 的宿主程序需要先調用一下
 
 <p>
 如果其參數 <code>v</code> 的值為假（<b>nil</b> 或 <b>false</b>），
-它就調用 <a href="#pdf-error"><code>error</code></a>；
+它就呼叫 <a href="#pdf-error"><code>error</code></a>；
 否則，返回所有的參數。
 在錯誤情況時，
 <code>message</code> 指那個錯誤對像；
@@ -6154,7 +6151,7 @@ C 的宿主程序需要先調用一下
 
 <li><b>"<code>stop</code>": </b>
 停止垃圾收集器的運行。
-在調用重啟前，收集器只會因顯式的調用運行。
+在呼叫重啟前，收集器只會因顯式的呼叫運行。
 </li>
 
 <li><b>"<code>restart</code>": </b>
@@ -6200,9 +6197,9 @@ Lua 使用的準確字節數（除非溢出）。
 <p>
 <hr><h3><a name="pdf-dofile"><code>dofile ([filename])</code></a></h3>
 打開該名字的文件，並執行文件中的 Lua 代碼塊。
-不帶參數調用時， <code>dofile</code> 執行標準輸入的內容（<code>stdin</code>）。
+不帶參數呼叫時， <code>dofile</code> 執行標準輸入的內容（<code>stdin</code>）。
 返回該代碼塊的所有返回值。
-對於有錯誤的情況，<code>dofile</code> 將錯誤反饋給調用者
+對於有錯誤的情況，<code>dofile</code> 將錯誤反饋給呼叫者
 （即，<code>dofile</code> 沒有運行在保護模式下）。
 
 
@@ -6210,7 +6207,7 @@ Lua 使用的準確字節數（除非溢出）。
 
 <p>
 <hr><h3><a name="pdf-error"><code>error (message [, level])</code></a></h3>
-中止上一次保護函式調用，
+中止上一次保護函式呼叫，
 將錯誤對像 <code>message</code> 返回。
 函式 <code>error</code> 永遠不會返回。
 
@@ -6218,8 +6215,8 @@ Lua 使用的準確字節數（除非溢出）。
 <p>
 當 message 是一個字串時，通常 <code>error</code> 會把一些有關出錯位置的信息附加在消息的前頭。
 <code>level</code> 參數指明了怎樣獲得出錯位置。
-對於 level 1 （默認值），出錯位置指 <code>error</code> 函式調用的位置。
-Level 2 將出錯位置指向調用 <code>error</code>的函式的函式；以此類推。
+對於 level 1 （默認值），出錯位置指 <code>error</code> 函式呼叫的位置。
+Level 2 將出錯位置指向呼叫 <code>error</code>的函式的函式；以此類推。
 傳入 level 0 可以避免在消息前添加出錯位置信息。
 
 
@@ -6272,8 +6269,8 @@ Lua 自己不使用這個變量；
 <p>
 如果 <code>chunk</code> 是一個字串，代碼塊指這個字串。
 如果 <code>chunk</code> 是一個函式，
-<code>load</code> 不斷地調用它獲取代碼塊的片斷。
-每次對 <code>chunk</code> 的調用都必須返回一個字串緊緊連接在上次調用的返回串之後。
+<code>load</code> 不斷地呼叫它獲取代碼塊的片斷。
+每次對 <code>chunk</code> 的呼叫都必須返回一個字串緊緊連接在上次呼叫的返回串之後。
 當返回空串、<b>nil</b>、或是不返回值時，都表示代碼塊結束。
 
 
@@ -6335,9 +6332,9 @@ Lua 不會對二進制代碼塊做健壯性檢查。
 運行程序來遍歷表中的所有域。
 第一個參數是要遍歷的表，第二個參數是表中的某個鍵。
 <code>next</code> 返回該鍵的下一個鍵及其關聯的值。
-如果用 <b>nil</b> 作為第二個參數調用 <code>next</code>
+如果用 <b>nil</b> 作為第二個參數呼叫 <code>next</code>
 將返回初始鍵及其關聯值。
-當以最後一個鍵去調用，或是以 <b>nil</b> 調用一張空表時，
+當以最後一個鍵去呼叫，或是以 <b>nil</b> 呼叫一張空表時，
 <code>next</code> 返回 <b>nil</b>。
 如果不提供第二個參數，將認為它就是 <b>nil</b>。
 特別指出，你可以用 <code>next(t)</code> 來判斷一張表是否是空的。
@@ -6363,7 +6360,7 @@ Lua 不會對二進制代碼塊做健壯性檢查。
 
 <p>
 如果 <code>t</code> 有元方法 <code>__pairs</code>，
-以 <code>t</code> 為參數調用它，並返回其返回的前三個值。
+以 <code>t</code> 為參數呼叫它，並返回其返回的前三個值。
 
 
 <p>
@@ -6388,12 +6385,12 @@ Lua 不會對二進制代碼塊做健壯性檢查。
 
 
 <p>
-傳入參數，以 <em>保護模式</em> 調用函式 <code>f</code> 。
+傳入參數，以 <em>保護模式</em> 呼叫函式 <code>f</code> 。
 這意味著 <code>f</code> 中的任何錯誤不會拋出；
 取而代之的是，<code>pcall</code> 會將錯誤捕獲到，並返回一個狀態碼。
 第一個返回值是狀態碼（一個布爾量），
 當沒有錯誤時，其為真。
-此時，<code>pcall</code> 同樣會在狀態碼後返回所有調用的結果。
+此時，<code>pcall</code> 同樣會在狀態碼後返回所有呼叫的結果。
 在有錯誤時，<code>pcall</code> 返回 <b>false</b> 加錯誤消息。
 
 
@@ -6488,7 +6485,7 @@ Lua 不會對二進制代碼塊做健壯性檢查。
 
 
 <p>
-如果調用的時候沒有 <code>base</code>，
+如果呼叫的時候沒有 <code>base</code>，
 <code>tonumber</code> 嘗試把參數轉換為一個數字。
 如果參數已經是一個數字，或是一個可以轉換為數字的字串，
 <code>tonumber</code> 就返回這個數字；
@@ -6502,7 +6499,7 @@ Lua 不會對二進制代碼塊做健壯性檢查。
 
 
 <p>
-當傳入 <code>base</code> 調用它時，
+當傳入 <code>base</code> 呼叫它時，
 <code>e</code> 必須是一個以該進製表示的整數字串。
 進制可以是 2 到 36 （包含 2 和 36）之間的任何整數。
 大於 10 進制時，字母 '<code>A</code>' （大小寫均可）表示 10 ，
@@ -6523,7 +6520,7 @@ Lua 不會對二進制代碼塊做健壯性檢查。
 
 <p>
 如果 <code>v</code> 有 <code>"__tostring"</code> 域的元表，
-<code>tostring</code> 會以 <code>v</code> 為參數調用它。
+<code>tostring</code> 會以 <code>v</code> 為參數呼叫它。
 並用它的結果作為返回值。
 
 
@@ -6639,8 +6636,8 @@ Lua 不會對二進制代碼塊做健壯性檢查。
 
 <p>
 以字串形式返回協程 <code>co</code> 的狀態：
-當協程正在運行（它就是調用 <code>status</code> 的那個） ，返回 <code>"running"</code>；
-如果協程調用 <code>yield</code> 掛起或是還沒有開始運行，返回 <code>"suspended"</code>；
+當協程正在運行（它就是呼叫 <code>status</code> 的那個） ，返回 <code>"running"</code>；
+如果協程呼叫 <code>yield</code> 掛起或是還沒有開始運行，返回 <code>"suspended"</code>；
 如果協程是活動的，都並不在運行（即它正在延續其它協程），返回 <code>"normal"</code>；
 如果協程運行完主體函式或因錯誤停止，返回 <code>"dead"</code>。
 
@@ -6655,7 +6652,7 @@ Lua 不會對二進制代碼塊做健壯性檢查。
 創建一個主體函式為 <code>f</code> 的新協程。
 <code>f</code> 必須是一個 Lua 的函式。
 返回一個函式，
-每次調用該函式都會延續該協程。
+每次呼叫該函式都會延續該協程。
 傳給這個函式的參數都會作為 <code>resume</code> 的額外參數。
 和 <code>resume</code> 返回相同的值，
 只是沒有第一個布爾量。
@@ -6669,7 +6666,7 @@ Lua 不會對二進制代碼塊做健壯性檢查。
 
 
 <p>
-掛起正在調用的協程的執行。
+掛起正在呼叫的協程的執行。
 傳遞給 <code>yield</code> 的參數都會轉為 <code>resume</code> 的額外返回值。
 
 
@@ -6717,7 +6714,7 @@ Lua 不會對二進制代碼塊做健壯性檢查。
 
 
 <p>
-每次找到一個加載器，<code>require</code> 都用兩個參數調用加載器：
+每次找到一個加載器，<code>require</code> 都用兩個參數呼叫加載器：
 <code>modname</code> 和一個在獲取加載器過程中得到的參數。
 （如果通過查找文件得到的加載器，這個額外參數是文件名。）
 如果加載器返回非空值，
@@ -6878,7 +6875,7 @@ Lua 用和初始化 Lua 路徑 <a href="#pdf-package.path"><code>package.path</c
 <p>
 這張表內的每一項都是一個 <em>查找器函式</em>。
 當查找一個模塊時，
-<a href="#pdf-require"><code>require</code></a> 按次序調用這些查找器，
+<a href="#pdf-require"><code>require</code></a> 按次序呼叫這些查找器，
 並傳入模塊名（<a href="#pdf-require"><code>require</code></a> 的參數）作為唯一的一個參數。
 此函式可以返回另一個函式（模塊的 <em>加載器</em>）加上另一個將傳遞給這個加載器的參數。
 或是返回一個描述為何沒有找到這個模塊的字串
@@ -7034,7 +7031,7 @@ Lua 用四個查找器函式初始化這張表。
 
 <p>
 返回包含有以二進制方式表示的（一個 <em>二進制代碼塊</em> ）指定函式的字串。
-之後可以用 <a href="#pdf-load"><code>load</code></a> 調用這個字串獲得
+之後可以用 <a href="#pdf-load"><code>load</code></a> 呼叫這個字串獲得
 該函式的副本（但是綁定新的上值）。
 如果　<code>strip</code> 為真值，
 二進制代碼塊不攜帶該函式的調試信息
@@ -7087,7 +7084,7 @@ Lua 用四個查找器函式初始化這張表。
 另外還增加了一個選項 <code>q</code>。
 <code>q</code> 選項將一個字串格式化為兩個雙引號括起，對內部字符做恰當的轉義處理的字串。
 該字串可以安全的被 Lua 解釋器讀回來。
-例如，調用
+例如，呼叫
 
 <pre>
      string.format('%q', 'a string with "quotes" and \n new line')
@@ -7117,7 +7114,7 @@ Lua 用四個查找器函式初始化這張表。
 <p>
 <hr><h3><a name="pdf-string.gmatch"><code>string.gmatch (s, pattern)</code></a></h3>
 返回一個迭代器函式。
-每次調用這個函式都會繼續以 <code>pattern</code> （參見　<a href="#6.4.1">&sect;6.4.1</a>）
+每次呼叫這個函式都會繼續以 <code>pattern</code> （參見　<a href="#6.4.1">&sect;6.4.1</a>）
 對 <code>s</code> 做匹配，並返回所有捕獲到的值。
 如果 <code>pattern</code> 中沒有指定捕獲，則每次捕獲整個 <code>pattern</code>。
 
@@ -7173,7 +7170,7 @@ Lua 用四個查找器函式初始化這張表。
 
 
 <p>
-如果 <code>repl</code> 是個函式，則在每次匹配發生時都會調用這個函式。
+如果 <code>repl</code> 是個函式，則在每次匹配發生時都會呼叫這個函式。
 所有捕獲到的子串依次作為參數傳入。
 
 
@@ -7296,7 +7293,7 @@ Lua 用四個查找器函式初始化這張表。
 如果不給出 <code>j</code> ，就當它是 -1 
 （和字串長度相同）。
 特別是，
-調用 <code>string.sub(s,1,j)</code> 可以返回 <code>s</code>
+呼叫 <code>string.sub(s,1,j)</code> 可以返回 <code>s</code>
 的長度為 <code>j</code> 的前綴串，
 而 <code>string.sub(s, -i)</code> 返回長度為 <code>i</code>
 的後綴串。
@@ -7732,7 +7729,7 @@ UTF-8 字符的個數。
 在 <code>list</code> 的位置 <code>pos</code> 處插入元素 <code>value</code> ，
 並後移元素 <code>list[pos], list[pos+1], &middot;&middot;&middot;, list[#list]</code> 。
 <code>pos</code> 的默認值為 <code>#list+1</code> ，
-因此調用 <code>table.insert(t,x)</code> 會將 <code>x</code> 插在列表 <code>t</code> 的末尾。
+因此呼叫 <code>table.insert(t,x)</code> 會將 <code>x</code> 插在列表 <code>t</code> 的末尾。
 
 
 
@@ -7777,7 +7774,7 @@ UTF-8 字符的個數。
 
 <p>
 <code>pos</code> 默認為 <code>#list</code>，
-因此調用 <code>table.remove(l)</code> 將移除表 <code>l</code> 的最後一個元素。
+因此呼叫 <code>table.remove(l)</code> 將移除表 <code>l</code> 的最後一個元素。
 
 
 
@@ -7871,7 +7868,7 @@ UTF-8 字符的個數。
 
 <p>
 默認的 <code>x</code> 是 1 ，
-因此調用 <code>math.atan(y)</code> 將返回
+因此呼叫 <code>math.atan(y)</code> 將返回
 <code>y</code> 的反正切值。
 
 
@@ -8022,13 +8019,13 @@ UTF-8 字符的個數。
 
 
 <p>
-當不帶參數調用時，
+當不帶參數呼叫時，
 返回一個 <em>[0,1)</em> 區間內一致分佈的浮點偽隨機數。
-當以兩個整數 <code>m</code> 與 <code>n</code> 調用時，
+當以兩個整數 <code>m</code> 與 <code>n</code> 呼叫時，
 <code>math.random</code> 返回一個 <em>[m, n]</em> 區間
 內一致分佈的整數偽隨機數。
 （值 <em>m-n</em> 不能是負數，且必須在 Lua 整數的表示範圍內。）
-調用 <code>math.random(n)</code> 等價於 <code>math.random(1,n)</code>。
+呼叫 <code>math.random(n)</code> 等價於 <code>math.random(1,n)</code>。
 
 
 <p>
@@ -8171,11 +8168,11 @@ I/O 函式在出錯時都返回 <b>nil</b>
 
 
 <p>
-用文件名調用它時，（以文本模式）來打開該名字的文件，
+用文件名呼叫它時，（以文本模式）來打開該名字的文件，
 並將文件句柄設為默認輸入文件。
-如果用文件句柄去調用它，
+如果用文件句柄去呼叫它，
 就簡單的將該句柄設為默認輸入文件。
-如果調用時不傳參數，它返回當前的默認輸入文件。
+如果呼叫時不傳參數，它返回當前的默認輸入文件。
 
 
 <p>
@@ -8189,14 +8186,14 @@ I/O 函式在出錯時都返回 <b>nil</b>
 
 <p>
 以讀模式打開指定的文件名並返回一個迭代函式。
-此迭代函式的工作方式和用一個已打開的文件去調用
+此迭代函式的工作方式和用一個已打開的文件去呼叫
 <code>file:lines(&middot;&middot;&middot;)</code> 得到的迭代器相同。
 當迭代函式檢測到文件結束，
 它不返回值（讓循環結束）並自動關閉文件。
 
 
 <p>
-調用 <code>io.lines()</code> （不傳文件名）
+呼叫 <code>io.lines()</code> （不傳文件名）
 等價於 <code>io.input():lines("*l")</code>；
 即，它將按行迭代標準輸入文件。
 在此情況下，循環結束後它不會關閉文件。
@@ -8334,7 +8331,7 @@ I/O 函式在出錯時都返回 <b>nil</b>
 
 <p>
 返回一個迭代器函式，
-每次調用迭代器時，都從文件中按指定格式讀數據。
+每次呼叫迭代器時，都從文件中按指定格式讀數據。
 如果沒有指定格式，使用默認值 "<code>l</code>" 。
 看一個例子
 
@@ -8362,7 +8359,7 @@ I/O 函式在出錯時都返回 <b>nil</b>
 若不能以該格式對應讀出數據則返回 <b>nil</b>。
 （對於最後這種情況，
 函式不會讀出後續的格式。）
-當調用時不傳格式，它會使用默認格式讀下一行（見下面描述）。
+當呼叫時不傳格式，它會使用默認格式讀下一行（見下面描述）。
 
 
 <p>
@@ -8434,9 +8431,9 @@ I/O 函式在出錯時都返回 <b>nil</b>
 <p>
 <code>whence</code> 的默認值是 <code>"cur"</code>，
 <code>offset</code> 默認為 0 。
-因此，調用 <code>file:seek()</code> 可以返回文件當前位置，並不改變它；
-調用 <code>file:seek("set")</code> 將位置設為文件開頭（並返回 0）；
-調用 <code>file:seek("end")</code> 將位置設到文件末尾，並返回文件大小。
+因此，呼叫 <code>file:seek()</code> 可以返回文件當前位置，並不改變它；
+呼叫 <code>file:seek("set")</code> 將位置設為文件開頭（並返回 0）；
+呼叫 <code>file:seek("end")</code> 將位置設到文件末尾，並返回文件大小。
 
 
 
@@ -8455,7 +8452,7 @@ I/O 函式在出錯時都返回 <b>nil</b>
 </li>
 
 <li><b>"<code>full</code>": </b>
-完全緩衝；只有在緩存滿或當你顯式的對文件調用
+完全緩衝；只有在緩存滿或當你顯式的對文件呼叫
 <code>flush</code>（參見 <a href="#pdf-io.flush"><code>io.flush</code></a>）
 時才真正做輸出操作。
 </li>
@@ -8545,7 +8542,7 @@ I/O 函式在出錯時都返回 <b>nil</b>
 
 
 <p>
-如果不傳參數調用，
+如果不傳參數呼叫，
 <code>date</code> 返回一個合理的日期時間串，
 格式取決於宿主程序以及當前的區域設置
 （即，<code>os.date()</code> 等價於 <code>os.date("%c")</code>）。
@@ -8576,7 +8573,7 @@ I/O 函式在出錯時都返回 <b>nil</b>
 
 <p>
 這個函式等價於 ISO C 函式 <code>system</code>。
-它調用系統解釋器執行 <code>command</code>。
+它呼叫系統解釋器執行 <code>command</code>。
 如果命令成功運行完畢，第一個返回值就是 <b>true</b>，
 否則是 <b>nil</b> otherwise。
 在第一個返回值之後，函式返回一個字串加一個數字。如下：
@@ -8595,7 +8592,7 @@ I/O 函式在出錯時都返回 <b>nil</b>
 </ul>
 
 <p>
-如果不帶參數調用，
+如果不帶參數呼叫，
 <code>os.execute</code> 在系統解釋器存在的時候返回真。
 
 
@@ -8605,7 +8602,7 @@ I/O 函式在出錯時都返回 <b>nil</b>
 
 
 <p>
-調用 ISO C 函式 <code>exit</code> 終止宿主程序。
+呼叫 ISO C 函式 <code>exit</code> 終止宿主程序。
 如果 <code>code</code> 為 <b>true</b>，
 返回的狀態碼是 <code>EXIT_SUCCESS</code>；
 如果 <code>code</code> 為 <b>false</b>，
@@ -8761,7 +8758,7 @@ Lua 程序不會崩潰），
 使用簡單的命令以及其它調試設置，用戶可以檢閱全局變量和局部變量，
 改變變量的值，計算一些表達式，等等。
 輸入一行僅包含 <code>cont</code> 的字串將結束這個函式，
-這樣調用者就可以繼續向下運行。
+這樣呼叫者就可以繼續向下運行。
 
 
 <p>
@@ -8789,10 +8786,10 @@ Lua 程序不會崩潰），
 返回關於一個函式信息的表。
 你可以直接提供該函式，
 也可以用一個數字 <code>f</code> 表示該函式。
-數字 <code>f</code> 表示運行在指定線程的調用堆疊對應層次上的函式：
+數字 <code>f</code> 表示運行在指定線程的呼叫堆疊對應層次上的函式：
 0 層表示當前函式（<code>getinfo</code> 自身）；
-1 層表示調用 <code>getinfo</code> 的函式
-（除非是尾調用，這種情況不計入堆疊）；等等。
+1 層表示呼叫 <code>getinfo</code> 的函式
+（除非是尾呼叫，這種情況不計入堆疊）；等等。
 如果 <code>f</code> 是一個比活動函式數量還大的數字，
 <code>getinfo</code> 返回 <b>nil</b>。
 
@@ -8833,7 +8830,7 @@ Lua 程序不會崩潰），
 -1 指第一個可變參數。
 如果該索引處沒有變量，函式返回 <b>nil</b>。
 若指定的層次越界，拋出錯誤。
-（你可以調用 <a href="#pdf-debug.getinfo"><code>debug.getinfo</code></a> 來檢查層次是否合法。）
+（你可以呼叫 <a href="#pdf-debug.getinfo"><code>debug.getinfo</code></a> 來檢查層次是否合法。）
 
 
 <p>
@@ -8902,17 +8899,17 @@ Lua 程序不會崩潰），
 
 <p>
 將一個函式作為鉤子函式設入。
-字串 <code>mask</code> 以及數字 <code>count</code> 決定了鉤子將在何時調用。
+字串 <code>mask</code> 以及數字 <code>count</code> 決定了鉤子將在何時呼叫。
 掩碼是由下列字符組合成的字串，每個字符有其含義：
 
 <ul>
-<li><b>'<code>c</code>': </b> 每當 Lua 調用一個函式時，調用鉤子；</li>
-<li><b>'<code>r</code>': </b> 每當 Lua 從一個函式內返回時，調用鉤子；</li>
-<li><b>'<code>l</code>': </b> 每當 Lua 進入新的一行時，調用鉤子。</li>
+<li><b>'<code>c</code>': </b> 每當 Lua 呼叫一個函式時，呼叫鉤子；</li>
+<li><b>'<code>r</code>': </b> 每當 Lua 從一個函式內返回時，呼叫鉤子；</li>
+<li><b>'<code>l</code>': </b> 每當 Lua 進入新的一行時，呼叫鉤子。</li>
 </ul><p>
 此外，
 傳入一個不為零的 <code>count</code> ，
-鉤子將在每運行 <code>count</code> 條指令時調用。
+鉤子將在每運行 <code>count</code> 條指令時呼叫。
 
 
 <p>
@@ -8921,14 +8918,14 @@ Lua 程序不會崩潰），
 
 
 <p>
-當鉤子被調用時，
-第一個參數是觸發這次調用的事件：
+當鉤子被呼叫時，
+第一個參數是觸發這次呼叫的事件：
 <code>"call"</code> （或 <code>"tail call"</code>），
 <code>"return"</code>，
 <code>"line"</code>， <code>"count"</code>。
 對於行事件，
 鉤子的第二個參數是新的行號。
-在鉤子內，你可以調用 <code>getinfo</code> ，指定第 2 層，
+在鉤子內，你可以呼叫 <code>getinfo</code> ，指定第 2 層，
 來獲得正在運行的函式的詳細信息
 （0 層指 <code>getinfo</code> 函式，
 1 層指鉤子函式）。
@@ -8943,7 +8940,7 @@ Lua 程序不會崩潰），
 堆疊上第 <code>level</code> 層函式的第 <code>local</code> 個局部變量。
 如果沒有那個變量，函式返回 <b>nil</b> 。
 如果 <code>level</code> 越界，拋出一個錯誤。
-（你可以調用 <a href="#pdf-debug.getinfo"><code>debug.getinfo</code></a> 來檢查層次是否合法。）
+（你可以呼叫 <a href="#pdf-debug.getinfo"><code>debug.getinfo</code></a> 來檢查層次是否合法。）
 否則，它返回局部變量的名字。
 
 
@@ -8997,10 +8994,10 @@ Lua 程序不會崩潰），
 <p>
 如果 <code>message</code> 有，且不是字串或 <b>nil</b>，
 函式不做任何處理直接返回 <code>message</code>。
-否則，它返回調用堆疊的堆疊回溯信息。
+否則，它返回呼叫堆疊的堆疊回溯信息。
 字串可選項 <code>message</code> 被添加在堆疊回溯信息的開頭。
 數字可選項 <code>level</code> 指明從堆疊的哪一層開始回溯
-（默認為 1 ，即調用 <code>traceback</code> 的那裡）。
+（默認為 1 ，即呼叫 <code>traceback</code> 的那裡）。
 
 
 
@@ -9058,13 +9055,13 @@ Lua 程序不會崩潰），
 <li><b><code>-</code>: </b> 把 <code>stdin</code> 當作一個文件運行，並中止對後面選項的處理。</li>
 </ul><p>
 在處理完選項後，<code>lua</code> 運行指定的 <em>腳本</em>。
-如果不帶參數調用，
+如果不帶參數呼叫，
 在標準輸入（<code>stdin</code>）是終端時，<code>lua</code> 的行為和 <code>lua -v -i</code> 相同。
 否則相當於 <code>lua -</code> 。
 
 
 <p>
-如果調用時不帶選項 <code>-E</code>，
+如果呼叫時不帶選項 <code>-E</code>，
 解釋器會在運行任何參數前，檢查環境變量 <a name="pdf-LUA_INIT_5_3"><code>LUA_INIT_5_3</code></a>
 （或在版本名未定義時，檢查 <a name="pdf-LUA_INIT"><code>LUA_INIT</code></a> ）。
 如果該變量記憶體格式為 <code>@<em>filename</em></code>，
@@ -9073,7 +9070,7 @@ Lua 程序不會崩潰），
 
 
 <p>
-如果調用時有選項 <code>-E</code>，
+如果呼叫時有選項 <code>-E</code>，
 除了忽略 <code>LUA_INIT</code> 外，
 Lua 還忽略 <code>LUA_PATH</code> 與 <code>LUA_CPATH</code> 的值。
 將 <a href="#pdf-package.path"><code>package.path</code></a> 和 <a href="#pdf-package.cpath"><code>package.cpath</code></a>
@@ -9081,7 +9078,7 @@ Lua 還忽略 <code>LUA_PATH</code> 與 <code>LUA_CPATH</code> 的值。
 
 <p>
 除 <code>-i</code> 與 <code>-E</code> 外所有的選項都按次序處理。
-例如，這樣調用
+例如，這樣呼叫
 
 <pre>
      $ lua -e'a=1' -e 'print(a)' script.lua
@@ -9099,7 +9096,7 @@ Lua 還忽略 <code>LUA_PATH</code> 與 <code>LUA_CPATH</code> 的值。
 在腳本名前面的任何參數
 （即解釋器的名字以及各選項）
 放在負索引處。
-例如，調用
+例如，呼叫
 
 <pre>
      $ lua -la b.lua t1 t2
@@ -9111,9 +9108,9 @@ Lua 還忽略 <code>LUA_PATH</code> 與 <code>LUA_CPATH</code> 的值。
              [0] = "b.lua",
              [1] = "t1", [2] = "t2" }
 </pre><p>
-如果調用中沒提供腳本名，
+如果呼叫中沒提供腳本名，
 解釋器的名字就放在索引 0 處，後面接著其它參數。
-例如，調用
+例如，呼叫
 
 <pre>
      $ lua -e "print(arg[1])"
@@ -9121,7 +9118,7 @@ Lua 還忽略 <code>LUA_PATH</code> 與 <code>LUA_CPATH</code> 的值。
 將打印出 "<code>-e</code>" 。
 如果提供了腳本名，
 就以 <code>arg[1]</code>, &middot;&middot;&middot;, <code>arg[#arg]</code>
-為參數調用腳本。
+為參數呼叫腳本。
 （和 Lua 所有的代碼塊一樣，
 腳本被編譯成一個可變參數函式。）
 
@@ -9142,7 +9139,7 @@ Lua 不斷的顯示提示符，並等待下一行輸入。
 解釋器向標準錯誤流報告錯誤。
 如果錯誤對象並非一個字串，但是卻有元方法
 <code>__tostring</code> 的話，
-解釋器會調用這個元方法生成最終的消息。
+解釋器會呼叫這個元方法生成最終的消息。
 否則，解釋器將錯誤對像轉換為一個字串，並把堆疊回溯信息加在前面。
 
 
@@ -9150,7 +9147,7 @@ Lua 不斷的顯示提示符，並等待下一行輸入。
 如果正常結束運行，
 解釋器會關閉主 Lua 狀態機
 （參見 <a href="#lua_close"><code>lua_close</code></a>）。
-腳本可以通過調用
+腳本可以通過呼叫
 <a href="#pdf-os.exit"><code>os.exit</code></a>
 來結束，以迴避這個步驟。
 
@@ -9184,7 +9181,7 @@ Lua 解釋器的位置對於你的機器來說可能不一樣。
 
 <p>
 Lua 的版本更替總是會修改一些 C API 並涉及源代碼的改變。
-例如一些常量的數字值，用宏來實現一些函式。
+例如一些常量的數字值，用巨集來實現一些函式。
 因此，你不能假設在不同的 Lua 版本間可以做到二進制兼容。
 當你使用新版時，一定要將使用了 Lua API 的客戶程序重新編譯。
 
@@ -9314,7 +9311,7 @@ Lua 5.2 到 Lua 5.3 最大的變化是引入了數字的整數子型別。
 </li>
 
 <li>
-處理輸入非默認整數型別的宏
+處理輸入非默認整數型別的巨集
 （<code>luaL_checkint</code>， <code>luaL_optint</code>， <code>luaL_checklong</code>， <code>luaL_optlong</code>）
 廢棄掉了。
 直接使用 <a href="#lua_Integer"><code>lua_Integer</code></a> 加一個型別轉換就可以替代
